@@ -1,26 +1,93 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+//AUTH
+import firebase from "firebase/app";
+import firebaseConfig from "./firebaseConfig.js";
+import firebaseUIConfig from "./firebaseUIConfig.js";
+//COMPONENTS
+
+//SCREENS
+import Landing from "./screens/Landing.js";
+import Home from "./screens/Home.js";
+//STYLES
+import "./App.css";
+import "./assets/styles/styles.css";
+
+//Connect to our firebase instance
+firebase.initializeApp(firebaseConfig);
+
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isAuthenticated: false,
+      isAuthenticating: true,
+      user: null
+    };
+
+    //Callback after you sign in successfully
+    firebaseUIConfig.callbacks.signInSuccessWithAuthResult = (
+      authResult,
+      redirectUrl
+    ) => {
+      var user = authResult.user;
+      //var isNewUser = authResult.isNewUser;
+
+      //RETRIEVE INFORMATION ABOUT USER HERE
+
+      this.setState({ isAuthenticated: true, user: user });
+
+      //Avoid redirects after signing in successfully
+      return false;
+    };
+  }
+
+  componentDidMount() {
+    //when page loads, see if there is an already logged in user. If so, log them in
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        // User is signed in.
+        this.setState({
+          isAuthenticated: true,
+          user: user,
+          isAuthenticating: false
+        });
+      } else {
+        this.setState({ isAuthenticating: false });
+      }
+    });
+  }
+
+  /*
+    Renders the screen that appears when a person has not logged in yet (Landing Page)
+  */
+  renderLanding() {
+    return (
+      <Landing uiConfig={firebaseUIConfig} firebaseAuth={firebase.auth()} />
+    );
+  }
+
+  /*
+  Log out of account and return to landing page
+  */
+  signOut = () => {
+    firebase.auth().signOut();
+    this.setState({ isAuthenticated: false });
+  };
+
+  /*
+    Render the home screen, which is only visible if the user has succesfully
+    registered.
+  */
+  renderHome() {
+    return <Home signOut={this.signOut} user={this.state.user} />;
+  }
+
+  render() {
+    if (this.state.isAuthenticating) return null;
+
+    return this.state.isAuthenticated
+      ? this.renderHome()
+      : this.renderLanding();
+  }
 }
-
-export default App;

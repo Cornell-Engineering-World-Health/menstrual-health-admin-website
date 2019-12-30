@@ -1,0 +1,162 @@
+#root {
+  min-height: 100vh;
+  font-family: "Lato", sans-serif;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="text"],
+select {
+  width: 100%;
+  padding: 12px 20px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 17px;
+  height: 50px;
+}
+
+input[type="number"],
+select {
+  width: 100%;
+  padding: 12px 20px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+  font-size: 17px;
+  height: 50px;
+}
+
+.landing-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-image: url("../images/dotdoodle.jpg");
+  background-color: #cccccc;
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh;
+}
+
+.sign-in-dropin-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #e6e6e6;
+  padding-top: 15px;
+  border-radius: 5px;
+}
+
+.navbar-container {
+  height: 50px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 20px;
+}
+
+.navbar-title {
+  padding-top: 10px;
+  padding-left: 20px;
+}
+
+.navbar-signout {
+  min-width: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-bottom-left-radius: 50px;
+  background-color: #ededed;
+  padding-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  padding-left: 25px;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  font-weight: 300;
+  margin-bottom: 2px;
+  box-shadow: 10px 10px 17px -4px rgba(105, 105, 105, 0.2);
+}
+
+.navbar-signout:hover {
+  min-width: 175px;
+  cursor: pointer;
+}
+
+.addbar-container {
+  display: flex;
+  height: 50px;
+  align-items: center;
+}
+
+.addbar-submit-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 20px;
+  background-color: #bfebff;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 10px;
+  padding-right: 25px;
+  border-top-right-radius: 25px;
+  border-bottom-right-radius: 25px;
+  min-width: 90px;
+  height: 30px;
+}
+.addbar-submit-not-enabled {
+  background-color: #ededed;
+  cursor: default;
+}
+
+.addbar-submit-enabled:hover {
+  background-color: #a1e2ff;
+  cursor: pointer;
+  min-width: 110px;
+}
+
+.addbar-error-message {
+  text-align: center;
+  font-size: 17px;
+  padding-left: 20px;
+  font-weight: 400;
+  color: #ed0000;
+}
+
+.small-form {
+  width: 75px;
+}
+
+.medium-form {
+  width: 200px;
+}
+
+.large-form {
+  width: 300px;
+}
+
+.registration-container {
+  padding: 20px;
+  font-weight: 300;
+}
+
+.registration-header {
+  font-size: 25px;
+  padding-bottom: 25px;
+}
+
+.registration-body {
+  font-size: 25px;
+  padding-top: 25px;
+}
+
+.registration-body-title {
+  font-size: 25px;
+}
+
+.registration-table {
+  font-size: 17px;
+}
