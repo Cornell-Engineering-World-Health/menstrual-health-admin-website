@@ -28,7 +28,10 @@ export default class AddBar extends React.Component {
     //tooltip = error message, so we don't want to submit if there is an error
     if (this.state.tooltip != null) return false;
 
-    this.props.submit(this.state);
+    let student = this.state;
+    student.registered = new Date();
+
+    this.props.submit(student);
     this.setState(
       {
         firstName: "",

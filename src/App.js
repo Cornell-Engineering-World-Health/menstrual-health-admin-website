@@ -22,7 +22,8 @@ export default class App extends React.Component {
     this.state = {
       isAuthenticated: false,
       isAuthenticating: true,
-      user: null
+      user: null,
+      students: []
     };
 
     //Callback after you sign in successfully
@@ -33,7 +34,7 @@ export default class App extends React.Component {
       var user = authResult.user;
       //var isNewUser = authResult.isNewUser;
 
-      //RETRIEVE INFORMATION ABOUT USER HERE
+      //RETRIEVE INFORMATION ABOUT USER HERE, OR REGISTER USER IN DB
 
       this.setState({ isAuthenticated: true, user: user });
 
@@ -41,6 +42,14 @@ export default class App extends React.Component {
       return false;
     };
   }
+
+  addStudent = student => {
+    //TODO: ADD STUDENT TO DB
+
+    this.state.students.push(student);
+    let newData = JSON.parse(JSON.stringify(this.state.students));
+    this.setState({ students: newData });
+  };
 
   componentDidMount() {
     //when page loads, see if there is an already logged in user. If so, log them in
@@ -80,7 +89,14 @@ export default class App extends React.Component {
     registered.
   */
   renderHome() {
-    return <Home signOut={this.signOut} user={this.state.user} />;
+    return (
+      <Home
+        signOut={this.signOut}
+        user={this.state.user}
+        addStudent={this.addStudent}
+        students={this.state.students}
+      />
+    );
   }
 
   render() {

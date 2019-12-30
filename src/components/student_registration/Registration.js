@@ -6,28 +6,9 @@ import "react-table-6/react-table.css";
 import AddBar from "./AddBar.js";
 
 export default class Registration extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      students: [] //TODO: RETRIEVE STUDENTS FROM DB
-    };
-  }
-
-  addStudent = student => {
-    /*need to create new object that contains all the students to let react know
-    we updated this.state.students (react checks objects by ID, so editing the
-    existing object does not give it a new id)*/
-
-    //TODO: ADD STUDENT TO DB
-
-    this.state.students.push(student);
-    let newData = JSON.parse(JSON.stringify(this.state.students));
-    this.setState({ students: newData });
-  };
-
   verifyStudent = student => {
     if (
-      this.state.students.some(
+      this.props.students.some(
         e =>
           e.firstName === student.firstName && e.lastName === student.lastName
       )
@@ -43,7 +24,10 @@ export default class Registration extends React.Component {
       <div className="registration-container">
         <div className="registration-header">
           Add New Student
-          <AddBar submit={this.addStudent} verifyStudent={this.verifyStudent} />
+          <AddBar
+            submit={this.props.addStudent}
+            verifyStudent={this.verifyStudent}
+          />
         </div>
         <div className="registration-body">
           <div className="registration-body-title">
@@ -51,7 +35,7 @@ export default class Registration extends React.Component {
           </div>
           <div className="registration-table">
             <ReactTable
-              data={this.state.students}
+              data={this.props.students}
               columns={columns}
               minRows={1}
               showPagination={false}
@@ -68,5 +52,6 @@ const columns = [
   { Header: "First Name", accessor: "firstName" },
   { Header: "Last Name", accessor: "lastName" },
   { Header: "Age", accessor: "age" },
-  { Header: "Comments", accessor: "comments" }
+  { Header: "Comments", accessor: "comments" },
+  { Header: "Date Registered", accessor: "registered" }
 ];
