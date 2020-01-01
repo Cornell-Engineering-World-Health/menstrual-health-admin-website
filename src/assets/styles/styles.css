@@ -74,11 +74,17 @@ select {
   display: flex;
   justify-content: center;
   align-items: center;
-  border-bottom-left-radius: 50px;
   padding: 10px;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
   font-weight: 400;
+}
+
+.navbar-signout:hover {
+  cursor: pointer;
+  background-color: #00000020;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .addbar-container {
