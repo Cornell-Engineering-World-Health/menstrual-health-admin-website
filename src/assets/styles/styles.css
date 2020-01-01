@@ -181,6 +181,8 @@ select {
 }
 
 .registration-wrapper {
+  display: flex;
+  flex-direction: column;
 }
 
 .registration-info-section-container {
@@ -194,6 +196,13 @@ select {
   position: relative;
   overflow: hidden;
   pointer-events: none;
+  border-width: 0px;
+  border-style: solid;
+  border-color: #ededed;
+  width: fit-content;
+  align-self: center;
+  margin-top: 10px;
+  border-radius: 5px;
 }
 
 .registration-info-section-container-closed {
@@ -203,12 +212,7 @@ select {
 }
 
 .registration-info-section-box {
-  padding: 25px;
-  background-color: #ffefab;
   border-radius: 15px;
-  margin-left: 20px;
-  margin-right: 20px;
-  margin-top: 20px;
   justify-content: center;
   text-align: center;
   align-items: center;
@@ -246,4 +250,8 @@ select {
 .x-button:hover {
   background-color: #d4d4d4;
   cursor: pointer;
+}
+
+.registration-info-section-image {
+  height: 50px;
 }

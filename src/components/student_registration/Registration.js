@@ -55,22 +55,34 @@ export default class Registration extends React.Component {
         </div>
         <div className={"registration-info-section-container" + infoClosed}>
           <div className="registration-info-section-box">
+            <img
+              className="registration-info-section-image"
+              src={images.register}
+              alt="register"
+            />
             <div className="registration-info-section-box-body">
               Register students on this website
             </div>
-            <div className="registration-info-section-box-title">1</div>
           </div>
           <div className="registration-info-section-box">
+            <img
+              className="registration-info-section-image"
+              src={images.login}
+              alt="register"
+            />
             <div className="registration-info-section-box-body">
               Log into the game on the tablet
             </div>
-            <div className="registration-info-section-box-title">2</div>
           </div>
           <div className="registration-info-section-box">
+            <img
+              className="registration-info-section-image"
+              src={images.dropdown}
+              alt="register"
+            />
             <div className="registration-info-section-box-body">
-              Select from dropdown which student will play on that tablet!
+              Select student who will play on that tablet!
             </div>
-            <div className="registration-info-section-box-title">3</div>
           </div>
         </div>
         <div className="registration-container">

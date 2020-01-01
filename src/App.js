@@ -32,7 +32,6 @@ export default class App extends React.Component {
       redirectUrl
     ) => {
       var user = authResult.user;
-      //var isNewUser = authResult.isNewUser;
 
       //RETRIEVE INFORMATION ABOUT USER HERE, OR REGISTER USER IN DB
 

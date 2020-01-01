@@ -65,14 +65,14 @@ export default class AddBar extends React.Component {
         <Form
           handleChange={event => this.handleChange("firstName", event)}
           value={this.state.firstName}
-          placeholder={"First Name"}
+          placeholder={"First Name*"}
           className={"large-form"}
           type="text"
         />
         <Form
           handleChange={event => this.handleChange("lastName", event)}
           value={this.state.lastName}
-          placeholder={"Last Name"}
+          placeholder={"Last Name*"}
           className={"large-form"}
           type="text"
         />
@@ -82,7 +82,9 @@ export default class AddBar extends React.Component {
           placeholder={"Age"}
           className={"large-form"}
           type="number"
-          onKeyDown={evt => evt.key === "e" && evt.preventDefault()}
+          onKeyDown={evt =>
+            (evt.key === "e" || evt.key === "E") && evt.preventDefault()
+          }
         />
         <Form
           handleChange={event => this.handleChange("comments", event)}
