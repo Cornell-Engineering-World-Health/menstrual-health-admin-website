@@ -60,28 +60,27 @@ export default class AddBar extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     return (
       <div className="addbar-container">
         <Form
           handleChange={event => this.handleChange("firstName", event)}
           value={this.state.firstName}
           placeholder={"First Name"}
-          className={"medium-form"}
+          className={"large-form"}
           type="text"
         />
         <Form
           handleChange={event => this.handleChange("lastName", event)}
           value={this.state.lastName}
           placeholder={"Last Name"}
-          className={"medium-form"}
+          className={"large-form"}
           type="text"
         />
         <Form
           handleChange={event => this.handleChange("age", event)}
           value={this.state.age}
           placeholder={"Age"}
-          className={"small-form"}
+          className={"large-form"}
           type="number"
           onKeyDown={evt => evt.key === "e" && evt.preventDefault()}
         />

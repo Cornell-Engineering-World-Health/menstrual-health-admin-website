@@ -1,6 +1,7 @@
 #root {
   min-height: 100vh;
   font-family: "Lato", sans-serif;
+  background-color: #fff7d4;
 }
 
 input::-webkit-outer-spin-button,
@@ -13,17 +14,24 @@ input[type="text"],
 select {
   width: 100%;
   padding: 12px 20px;
-  border: 1px solid #ccc;
+  border-color: #ccc;
+  border-style: solid;
+  border-width: 0px;
+  border-bottom-width: 1px;
   box-sizing: border-box;
   font-size: 17px;
   height: 50px;
+  width: 100%;
 }
 
 input[type="number"],
 select {
   width: 100%;
   padding: 12px 20px;
-  border: 1px solid #ccc;
+  border-color: #ccc;
+  border-style: solid;
+  border-width: 0px;
+  border-bottom-width: 1px;
   box-sizing: border-box;
   font-size: 17px;
   height: 50px;
@@ -37,6 +45,7 @@ select {
   background-repeat: no-repeat;
   background-size: cover;
   min-height: 100vh;
+  background-image: url("../images/dotdoodle.jpg");
 }
 
 .sign-in-dropin-wrapper {
@@ -53,6 +62,7 @@ select {
   display: flex;
   justify-content: space-between;
   font-size: 20px;
+  background-color: #ffefab;
 }
 
 .navbar-title {
@@ -61,32 +71,19 @@ select {
 }
 
 .navbar-signout {
-  min-width: 150px;
   display: flex;
   justify-content: center;
   align-items: center;
   border-bottom-left-radius: 50px;
-  background-color: #ededed;
-  padding-top: 10px;
-  padding-right: 10px;
-  padding-bottom: 10px;
-  padding-left: 25px;
+  padding: 10px;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
-  font-weight: 300;
-  margin-bottom: 2px;
-  box-shadow: 10px 10px 17px -4px rgba(105, 105, 105, 0.2);
-}
-
-.navbar-signout:hover {
-  min-width: 175px;
-  cursor: pointer;
+  font-weight: 400;
 }
 
 .addbar-container {
   display: flex;
-  height: 50px;
-  align-items: center;
+  flex-direction: column;
 }
 
 .addbar-submit-button {
@@ -94,35 +91,29 @@ select {
   justify-content: center;
   align-items: center;
   font-size: 20px;
-  background-color: #bfebff;
   -webkit-transition-duration: 0.4s; /* Safari */
   transition-duration: 0.4s;
   padding-top: 10px;
   padding-bottom: 10px;
   padding-left: 10px;
   padding-right: 25px;
-  border-top-right-radius: 25px;
-  border-bottom-right-radius: 25px;
   min-width: 90px;
   height: 30px;
+  background-color: #ffefab;
 }
+
+.registration-add-student-title {
+  padding: 10px;
+}
+
 .addbar-submit-not-enabled {
   background-color: #ededed;
   cursor: default;
 }
 
 .addbar-submit-enabled:hover {
-  background-color: #a1e2ff;
+  background-color: #ffefab;
   cursor: pointer;
-  min-width: 110px;
-}
-
-.addbar-error-message {
-  text-align: center;
-  font-size: 17px;
-  padding-left: 20px;
-  font-weight: 400;
-  color: #ed0000;
 }
 
 .small-form {
@@ -134,28 +125,118 @@ select {
 }
 
 .large-form {
-  width: 300px;
+  width: 100%;
+  min-width: 250px;
 }
 
 .registration-container {
-  padding: 20px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  padding-left: 65px;
+  padding-right: 65px;
   font-weight: 300;
+  flex-direction: row;
+  display: flex;
 }
 
 .registration-header {
   font-size: 25px;
-  padding-bottom: 25px;
+  box-shadow: 10px 10px 10px -3px rgba(100, 100, 100, 0.2);
+  background-color: white;
+  padding: 20px;
+  width: fit-content;
+  border-radius: 5px;
+  height: fit-content;
 }
 
 .registration-body {
   font-size: 25px;
-  padding-top: 25px;
+  border-radius: 5px;
+  background-color: white;
+  padding: 20px;
+  box-shadow: 10px 10px 10px -3px rgba(100, 100, 100, 0.2);
+  width: 100%;
+  margin-left: 30px;
+  margin-right: 10px;
 }
 
 .registration-body-title {
   font-size: 25px;
+  width: fit-content;
+  padding: 10px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
 }
 
 .registration-table {
   font-size: 17px;
+  background-color: white;
+}
+
+.registration-wrapper {
+}
+
+.registration-info-section-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.registration-info-section-container-closed {
+  -webkit-transition-duration: 0.4s; /* Safari */
+  transition-duration: 0.4s;
+  height: 0;
+}
+
+.registration-info-section-box {
+  padding: 25px;
+  background-color: #ffefab;
+  border-radius: 15px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: 20px;
+  justify-content: center;
+  text-align: center;
+  align-items: center;
+  width: 300px;
+  min-height: 130px;
+  display: flex;
+  flex-direction: column;
+}
+
+.registration-info-section-box-body {
+  padding: 15px;
+}
+
+.registration-info-section-box-title {
+  font-size: 25px;
+}
+
+.x-button-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.x-button {
+  width: 25px;
+  height: 25px;
+  position: absolute;
+  padding: 15px;
+  border-bottom-left-radius: 10px;
+  transition-duration: 0.4s;
+  background-color: #ededed;
+  box-shadow: 6px 6px 6px -3px rgba(100, 100, 100, 0.3);
+}
+
+.x-button:hover {
+  background-color: #d4d4d4;
+  cursor: pointer;
 }
