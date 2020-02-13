@@ -43,8 +43,6 @@ export default class App extends React.Component {
   }
 
   addStudent = student => {
-    //TODO: ADD STUDENT TO DB
-
     this.state.students.push(student);
     let newData = JSON.parse(JSON.stringify(this.state.students));
     this.setState({ students: newData });
