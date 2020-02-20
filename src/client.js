@@ -59,7 +59,7 @@ export async function getProgress() {
 
 export async function getUserProgress() {
   //make call to database
-  let endpoint = 'http://localhost:5000/api/progress:user_id'
+  let endpoint = 'http://localhost:5000/api/progress/:user_id'
   const response = await fetch(endpoint);
   console.log(response);
   return await response.json();
@@ -67,7 +67,23 @@ export async function getUserProgress() {
 
 export async function getQuestionProgress() {
   //make call to database
-  let endpoint = 'http://localhost:5000/api/progress:question_id'
+  let endpoint = 'http://localhost:5000/api/progress/:question_id'
+  const response = await fetch(endpoint);
+  console.log(response);
+  return await response.json();
+}
+
+export async function getAdmin() {
+  //make call to database
+  let endpoint = 'http://localhost:5000/api/admins/:admin_id'
+  const response = await fetch(endpoint);
+  console.log(response);
+  return await response.json();
+}
+
+export async function getAdmins() {
+  //make call to database
+  let endpoint = 'http://localhost:5000/api/admins'
   const response = await fetch(endpoint);
   console.log(response);
   return await response.json();
