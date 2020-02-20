@@ -13,6 +13,8 @@ import Home from "./screens/Home.js";
 import "./App.css";
 import "./assets/styles/styles.css";
 
+import {getUser, getUsers, getUsersByAdmin, getQuestion, getQuestions, getAllProgress, getProgress, getUserProgress, getQuestionProgress} from './client.js'
+
 //Connect to our firebase instance
 firebase.initializeApp(firebaseConfig);
 
@@ -48,7 +50,7 @@ export default class App extends React.Component {
     this.setState({ students: newData });
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     //when page loads, see if there is an already logged in user. If so, log them in
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
@@ -62,6 +64,7 @@ export default class App extends React.Component {
         this.setState({ isAuthenticating: false });
       }
     });
+    console.log(await getQuestions());
   }
 
   /*
