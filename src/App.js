@@ -13,10 +13,7 @@ import Home from "./screens/Home.js";
 import "./App.css";
 import "./assets/styles/styles.css";
 
-import {getUser, getUsers, getUsersByAdmin, getQuestion, getQuestions, getAllProgress,
-  getProgress, getUserProgress, getQuestionProgress, getAdmin, getAdmins, postUser,
-  postQuestion, postProgress, postAdmin, deleteUser, deleteQuestion, deleteProgress,
-  deleteAdmin, putQuestion, putProgress, putAdmin} from './client.js'
+import {getUser, postUser} from './client/client.js'
 
 //Connect to our firebase instance
 firebase.initializeApp(firebaseConfig);
@@ -47,8 +44,11 @@ export default class App extends React.Component {
     };
   }
 
-  addStudent = student => {
+   addStudent = async student => {
     this.state.students.push(student);
+    let formattedStudent = {first_name: student.firstName, last_name: student.lastName, village_name: student.villageName, comments: student.comments}
+    console.log(formattedStudent);
+    await postUser(formattedStudent);
     let newData = JSON.parse(JSON.stringify(this.state.students));
     this.setState({ students: newData });
   };
@@ -67,11 +67,6 @@ export default class App extends React.Component {
         this.setState({ isAuthenticating: false });
       }
     });
-    const testUser = {first_name: 'Theodore', last_name: 'Klausner', village_name: 'Cornell', comments: 'Did really well!'};
-    const testQuestion = {prompt: 'Question #1', module_num: 1}
-    const data = {}
-    console.log(await postQuestion(data));
-    console.log(await getQuestions());
   }
 
   /*
