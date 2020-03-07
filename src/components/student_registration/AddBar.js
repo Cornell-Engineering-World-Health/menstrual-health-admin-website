@@ -9,7 +9,7 @@ export default class AddBar extends React.Component {
     this.state = {
       firstName: "",
       lastName: "",
-      age: "",
+      villageName: "",
       comments: ""
     };
     this.state.tooltip = this.generateTooltip();
@@ -36,7 +36,7 @@ export default class AddBar extends React.Component {
       {
         firstName: "",
         lastName: "",
-        age: "",
+        villageName: "",
         comments: ""
       },
       () => this.setState({ tooltip: this.generateTooltip() })
@@ -50,9 +50,6 @@ export default class AddBar extends React.Component {
       return (tooltip += "first name, last name");
     if (this.state.lastName === "") return (tooltip += "last name");
     if (this.state.firstName === "") return (tooltip += "first name");
-
-    //check if age is a decimal
-    if (!regex.test(this.state.age)) return "Invalid age";
 
     //check if student is valid
     let errorMessage = this.props.verifyStudent(this.state);
@@ -77,14 +74,11 @@ export default class AddBar extends React.Component {
           type="text"
         />
         <Form
-          handleChange={event => this.handleChange("age", event)}
-          value={this.state.age}
-          placeholder={"Age"}
+          handleChange={event => this.handleChange("villageName", event)}
+          value={this.state.villageName}
+          placeholder={"Village Name"}
           className={"large-form"}
-          type="number"
-          onKeyDown={evt =>
-            (evt.key === "e" || evt.key === "E") && evt.preventDefault()
-          }
+          type="text"
         />
         <Form
           handleChange={event => this.handleChange("comments", event)}

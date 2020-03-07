@@ -13,7 +13,7 @@ import Home from "./screens/Home.js";
 import "./App.css";
 import "./assets/styles/styles.css";
 
-import {getUser, postUser} from './client/client.js'
+import { getUser, postUser } from "./client/client.js";
 
 //Connect to our firebase instance
 firebase.initializeApp(firebaseConfig);
@@ -44,11 +44,16 @@ export default class App extends React.Component {
     };
   }
 
-   addStudent = async student => {
+  addStudent = async student => {
     this.state.students.push(student);
-    let formattedStudent = {first_name: student.firstName, last_name: student.lastName, village_name: student.villageName, comments: student.comments}
+    let formattedStudent = {
+      first_name: student.firstName,
+      last_name: student.lastName,
+      village_name: student.villageName,
+      comments: student.comments
+    };
     console.log(formattedStudent);
-    await postUser(formattedStudent);
+    //await postUser(formattedStudent);
     let newData = JSON.parse(JSON.stringify(this.state.students));
     this.setState({ students: newData });
   };
