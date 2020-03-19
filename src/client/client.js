@@ -28,14 +28,13 @@ export async function getUsers() {
 
 export async function getUsersByAdmin(admin_id) {
   //make call to database
-  let endpoint = endpoint_prefix + "users/" + admin_id;
+  let endpoint = endpoint_prefix + "users/admin/" + admin_id;
   const response = await fetch(endpoint, {
     headers: {
       Authorization: await getKey()
     }
   });
   var json = await response.json();
-
   return json;
 }
 
@@ -169,8 +168,8 @@ export async function postUser(data) {
     },
     body: JSON.stringify(data)
   });
-
   var json = await response.json();
+  console.log(json);
   return json;
 }
 

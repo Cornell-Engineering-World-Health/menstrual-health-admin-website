@@ -13,7 +13,8 @@ import Home from "./screens/Home.js";
 import "./App.css";
 import "./assets/styles/styles.css";
 
-import { getUser, postUser } from "./client/client.js";
+import { getUsersByAdmin, postUser, postAdmin, getUser } from "./client/client.js";
+
 
 //Connect to our firebase instance
 firebase.initializeApp(firebaseConfig);
@@ -25,53 +26,89 @@ export default class App extends React.Component {
       isAuthenticated: false,
       isAuthenticating: true,
       user: null,
-      students: []
+      students: [],
+      locked: false
     };
 
     //Callback after you sign in successfully
-    firebaseUIConfig.callbacks.signInSuccessWithAuthResult = (
+
+    firebaseUIConfig.callbacks.signInSuccessWithAuthResult = async (
       authResult,
       redirectUrl
     ) => {
-      var user = authResult.user;
+      var admin = authResult.user;
 
-      //RETRIEVE INFORMATION ABOUT USER HERE, OR REGISTER USER IN DB
+      /*
+      let students = await getUsersByAdmin('5e627a6492084a000442e6c0');
+      for(let s in students) {
+        let formattedStudent = {
+          firstName: students[s].first_name,
+          lastName: students[s].last_name,
+          villageName: students[s].village_name,
+          comments: students[s].comments,
+        }
+        this.state.students.push(formattedStudent);
+      }
+      */
+      console.log('admin', admin);
 
-      this.setState({ isAuthenticated: true, user: user });
-
+      //RETRIEVE INFORMATION ABOUT USERS BY ADMIN HERE, OR REGISTER USER IN DB
+      //students = JSON.parse(JSON.stringify(this.state.students));
+      this.setState({ isAuthenticated: true, user: admin, students: []});
+      //console.log(students)
       //Avoid redirects after signing in successfully
       return false;
     };
   }
 
   addStudent = async student => {
+    console.log('aIn')
+    console.log('a', this.state.locked)
+    //this.setState({locked: true });
     this.state.students.push(student);
     let formattedStudent = {
       first_name: student.firstName,
       last_name: student.lastName,
       village_name: student.villageName,
-      comments: student.comments
+      comments: student.comments,
+      admin_id: '5e627a6492084a000442e6c0',
     };
-    console.log(formattedStudent);
-    //await postUser(formattedStudent);
+    //console.log(this.state.students);
+    this.setState({locked: true });
+    await postUser(formattedStudent);
+    this.setState({locked: false });
     let newData = JSON.parse(JSON.stringify(this.state.students));
-    this.setState({ students: newData });
-  };
+    this.setState({ students: newData, locked: false });
+    console.log('aOut')
+
+  }
 
   async componentDidMount() {
     //when page loads, see if there is an already logged in user. If so, log them in
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
+    firebase.auth().onAuthStateChanged(async user => {
+      console.log('m', this.state.locked)
+      if (user && !this.state.locked) {
+        console.log('mIn')
+        this.setState({ locked: true });
+        this.state.students = await getStudents('5e627a6492084a000442e6c0');
+        this.setState({ locked: true });
+        console.log('mOut')
+        let students = JSON.parse(JSON.stringify(this.state.students));
         // User is signed in.
+        //console.log(state.students)
         this.setState({
           isAuthenticated: true,
           user: user,
-          isAuthenticating: false
+          isAuthenticating: false,
+          students: students,
+          locked: false
         });
       } else {
         this.setState({ isAuthenticating: false });
       }
     });
+    //console.log(await getUser('5e64281d7bc8d60004846437'))
+    //console.log(await getUsersByAdmin('5e627a6492084a000442e6c0'));
   }
 
   /*
@@ -114,3 +151,19 @@ export default class App extends React.Component {
       : this.renderLanding();
   }
 }
+
+async function getStudents(admin_id) {
+  let students = await getUsersByAdmin(admin_id);
+  let state_students = []
+  for(let s in students) {
+    let formattedStudent = {
+      firstName: students[s].first_name,
+      lastName: students[s].last_name,
+      villageName: students[s].village_name,
+      comments: students[s].comments,
+    }
+    state_students.push(formattedStudent)
+    //this.state.students.push(formattedStudent);
+  }
+  return state_students
+};
