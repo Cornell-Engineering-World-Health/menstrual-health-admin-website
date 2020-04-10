@@ -28,7 +28,6 @@ export default class App extends React.Component {
       students: [],
       auth: ""
     };
-
     //Callback after you sign in successfully
 
     firebaseUIConfig.callbacks.signInSuccessWithAuthResult = async (
@@ -36,8 +35,8 @@ export default class App extends React.Component {
       redirectUrl
     ) => {
       var admin = authResult.user;
-      await this.getAuthentication();
-      await this.getStudents("5e627a6492084a000442e6c0", this.state.auth);
+      //  await this.getAuthentication();
+      //  await this.getStudents(admin.uid, this.state.auth);
       this.setState({
         isAuthenticated: true,
         user: admin
@@ -48,13 +47,14 @@ export default class App extends React.Component {
   }
 
   addStudent = async student => {
+    console.log(this.state.user.uid);
     this.state.students.push(student);
     let formattedStudent = {
       first_name: student.firstName,
       last_name: student.lastName,
       village_name: student.villageName,
       comments: student.comments,
-      admin_id: "5e627a6492084a000442e6c0"
+      admin_id: this.state.user.uid
     };
     await postUser(formattedStudent, this.state.auth);
     let newData = JSON.parse(JSON.stringify(this.state.students));
@@ -66,7 +66,7 @@ export default class App extends React.Component {
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
         await this.getAuthentication();
-        await this.getStudents("5e627a6492084a000442e6c0", this.state.auth);
+        await this.getStudents(user.uid, this.state.auth);
         this.setState({
           isAuthenticated: true,
           user: user,
