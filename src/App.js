@@ -35,8 +35,6 @@ export default class App extends React.Component {
       redirectUrl
     ) => {
       var admin = authResult.user;
-      //  await this.getAuthentication();
-      //  await this.getStudents(admin.uid, this.state.auth);
       this.setState({
         isAuthenticated: true,
         user: admin
@@ -65,6 +63,7 @@ export default class App extends React.Component {
     //when page loads, see if there is an already logged in user. If so, log them in
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
+        //acquire auth key, then get students and update state
         await this.getAuthentication();
         await this.getStudents(user.uid, this.state.auth);
         this.setState({
@@ -118,11 +117,13 @@ export default class App extends React.Component {
       : this.renderLanding();
   }
 
+  //retrieve auth key and set state
   async getAuthentication() {
     let key = await getKey();
     this.setState({ auth: key });
   }
 
+  //retrieve students from database and reformat for react table; sets state
   async getStudents(admin_id, auth) {
     let students = await getUsersByAdmin(admin_id, auth);
     let state_students = [];
