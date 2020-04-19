@@ -118,7 +118,7 @@ export default class Registration extends React.Component {
 const columns = [
   { Header: "First Name", accessor: "firstName" },
   { Header: "Last Name", accessor: "lastName" },
-  { Header: "Age", accessor: "age" },
+  { Header: "Village Name", accessor: "villageName" },
   { Header: "Comments", accessor: "comments" },
   { Header: "Date Registered", accessor: "registered" }
 ];

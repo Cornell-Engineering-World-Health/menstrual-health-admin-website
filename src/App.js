@@ -13,6 +13,8 @@ import Home from "./screens/Home.js";
 import "./App.css";
 import "./assets/styles/styles.css";
 
+import { getUsersByAdmin, postUser, getKey } from "./client/client.js";
+
 //Connect to our firebase instance
 firebase.initializeApp(firebaseConfig);
 
@@ -23,38 +25,47 @@ export default class App extends React.Component {
       isAuthenticated: false,
       isAuthenticating: true,
       user: null,
-      students: []
+      students: [],
+      auth: ""
     };
-
     //Callback after you sign in successfully
-    firebaseUIConfig.callbacks.signInSuccessWithAuthResult = (
+
+    firebaseUIConfig.callbacks.signInSuccessWithAuthResult = async (
       authResult,
       redirectUrl
     ) => {
-      var user = authResult.user;
-
-      //RETRIEVE INFORMATION ABOUT USER HERE, OR REGISTER USER IN DB
-
-      this.setState({ isAuthenticated: true, user: user });
-
+      var admin = authResult.user;
+      this.setState({
+        isAuthenticated: true,
+        user: admin
+      });
       //Avoid redirects after signing in successfully
       return false;
     };
   }
 
-  addStudent = student => {
-    //TODO: ADD STUDENT TO DB
-
+  addStudent = async student => {
+    console.log(this.state.user.uid);
     this.state.students.push(student);
+    let formattedStudent = {
+      first_name: student.firstName,
+      last_name: student.lastName,
+      village_name: student.villageName,
+      comments: student.comments,
+      admin_id: this.state.user.uid
+    };
+    await postUser(formattedStudent, this.state.auth);
     let newData = JSON.parse(JSON.stringify(this.state.students));
     this.setState({ students: newData });
   };
 
-  componentDidMount() {
+  async componentDidMount() {
     //when page loads, see if there is an already logged in user. If so, log them in
-    firebase.auth().onAuthStateChanged(user => {
+    firebase.auth().onAuthStateChanged(async user => {
       if (user) {
-        // User is signed in.
+        //acquire auth key, then get students and update state
+        await this.getAuthentication();
+        await this.getStudents(user.uid, this.state.auth);
         this.setState({
           isAuthenticated: true,
           user: user,
@@ -104,5 +115,30 @@ export default class App extends React.Component {
     return this.state.isAuthenticated
       ? this.renderHome()
       : this.renderLanding();
+  }
+
+  //retrieve auth key and set state
+  async getAuthentication() {
+    let key = await getKey();
+    this.setState({ auth: key });
+  }
+
+  //retrieve students from database and reformat for react table; sets state
+  async getStudents(admin_id, auth) {
+    let students = await getUsersByAdmin(admin_id, auth);
+    let state_students = [];
+    for (let s in students) {
+      let formattedStudent = {
+        firstName: students[s].first_name,
+        lastName: students[s].last_name,
+        villageName: students[s].village_name,
+        comments: students[s].comments,
+        registered: students[s].date_registered
+      };
+      state_students.push(formattedStudent);
+    }
+    students = JSON.parse(JSON.stringify(state_students));
+    this.setState({ students: students });
+    return students;
   }
 }
