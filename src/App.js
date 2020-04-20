@@ -13,7 +13,7 @@ import Home from "./screens/Home.js";
 import "./App.css";
 import "./assets/styles/styles.css";
 
-import { getUsersByAdmin, postUser, getKey } from "./client/client.js";
+import { getUsersByAdmin, postUser } from "./client/client.js";
 
 //Connect to our firebase instance
 firebase.initializeApp(firebaseConfig);
@@ -25,8 +25,7 @@ export default class App extends React.Component {
       isAuthenticated: false,
       isAuthenticating: true,
       user: null,
-      students: [],
-      auth: ""
+      students: []
     };
     //Callback after you sign in successfully
 
@@ -54,7 +53,7 @@ export default class App extends React.Component {
       comments: student.comments,
       admin_id: this.state.user.uid
     };
-    await postUser(formattedStudent, this.state.auth);
+    await postUser(formattedStudent);
     let newData = JSON.parse(JSON.stringify(this.state.students));
     this.setState({ students: newData });
   };
@@ -64,8 +63,7 @@ export default class App extends React.Component {
     firebase.auth().onAuthStateChanged(async user => {
       if (user) {
         //acquire auth key, then get students and update state
-        await this.getAuthentication();
-        await this.getStudents(user.uid, this.state.auth);
+        await this.getStudents(user.uid);
         this.setState({
           isAuthenticated: true,
           user: user,
@@ -117,15 +115,9 @@ export default class App extends React.Component {
       : this.renderLanding();
   }
 
-  //retrieve auth key and set state
-  async getAuthentication() {
-    let key = await getKey();
-    this.setState({ auth: key });
-  }
-
   //retrieve students from database and reformat for react table; sets state
-  async getStudents(admin_id, auth) {
-    let students = await getUsersByAdmin(admin_id, auth);
+  async getStudents(admin_id) {
+    let students = await getUsersByAdmin(admin_id);
     let state_students = [];
     for (let s in students) {
       let formattedStudent = {
