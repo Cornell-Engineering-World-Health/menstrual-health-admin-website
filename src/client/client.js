@@ -1,12 +1,14 @@
 var options = require("./key.json");
 var endpoint_prefix = "https://menstralhealthgameserver.herokuapp.com/api/";
+
+// Interval Key Retrieval (60 min)
 const {
-  dynamic: { setIntervalAsync: setIntervalAsyncD }
+  dynamic: { setIntervalAsync: setIntervalAsyncD },
 } = require("set-interval-async");
 var auth_key = "";
 var getKeyInterval = setIntervalAsyncD(async () => {
   auth_key = await getKey();
-}, 300);
+}, 360000);
 
 export async function getKey() {
   let endpoint = options.url;
@@ -22,8 +24,8 @@ export async function getUsersByAdmin(admin_id) {
   let endpoint = endpoint_prefix + "users/admin/" + admin_id;
   const response = await fetch(endpoint, {
     headers: {
-      Authorization: auth_key
-    }
+      Authorization: auth_key,
+    },
   });
   var json = await response.json();
   return json;
@@ -36,9 +38,9 @@ export async function postUser(data) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: auth_key
+      Authorization: auth_key,
     },
-    body: JSON.stringify(data)
+    body: JSON.stringify(data),
   });
   var json = await response.json();
   return json;
@@ -50,8 +52,8 @@ export async function deleteUser(user_id) {
   const response = await fetch(endpoint, {
     method: "DELETE",
     headers: {
-      Authorization: auth_key
-    }
+      Authorization: auth_key,
+    },
   });
   var json = await response.json();
   return json;

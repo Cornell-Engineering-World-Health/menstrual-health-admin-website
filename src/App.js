@@ -25,7 +25,7 @@ export default class App extends React.Component {
       isAuthenticated: false,
       isAuthenticating: true,
       user: null,
-      students: []
+      students: [],
     };
     //Callback after you sign in successfully
 
@@ -36,14 +36,14 @@ export default class App extends React.Component {
       var admin = authResult.user;
       this.setState({
         isAuthenticated: true,
-        user: admin
+        user: admin,
       });
       //Avoid redirects after signing in successfully
       return false;
     };
   }
 
-  addStudent = async student => {
+  addStudent = async (student) => {
     console.log(this.state.user.uid);
     this.state.students.push(student);
     let formattedStudent = {
@@ -51,7 +51,7 @@ export default class App extends React.Component {
       last_name: student.lastName,
       village_name: student.villageName,
       comments: student.comments,
-      admin_id: this.state.user.uid
+      admin_id: this.state.user.uid,
     };
     await postUser(formattedStudent);
     let newData = JSON.parse(JSON.stringify(this.state.students));
@@ -60,14 +60,14 @@ export default class App extends React.Component {
 
   async componentDidMount() {
     //when page loads, see if there is an already logged in user. If so, log them in
-    firebase.auth().onAuthStateChanged(async user => {
+    firebase.auth().onAuthStateChanged(async (user) => {
       if (user) {
         //acquire auth key, then get students and update state
         await this.getStudents(user.uid);
         this.setState({
           isAuthenticated: true,
           user: user,
-          isAuthenticating: false
+          isAuthenticating: false,
         });
       } else {
         this.setState({ isAuthenticating: false });
@@ -125,7 +125,7 @@ export default class App extends React.Component {
         lastName: students[s].last_name,
         villageName: students[s].village_name,
         comments: students[s].comments,
-        registered: students[s].date_registered
+        registered: students[s].date_registered,
       };
       state_students.push(formattedStudent);
     }
