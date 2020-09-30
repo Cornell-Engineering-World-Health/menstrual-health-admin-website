@@ -15,7 +15,10 @@
     "react-scripts": "3.3.0",
     "react-table": "^7.0.0-rc.15",
     "react-table-6": "^6.11.0",
-    "react-tooltip": "^3.11.1"
+    "react-tooltip": "^3.11.1",
+    "redis": "^3.0.2",
+    "redis-lock": "^0.1.4",
+    "set-interval-async": "1.0.32"
   },
   "scripts": {
     "start": "react-scripts --max_old_space_size=4096 start",
