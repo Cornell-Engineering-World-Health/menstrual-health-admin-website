@@ -31,7 +31,7 @@ export async function getUsersByAdmin(admin_id) {
     },
   });
   var json = await response.json();
-  return json ? json : "";
+  return json ? json : [];
 }
 
 export async function postUser(data) {
