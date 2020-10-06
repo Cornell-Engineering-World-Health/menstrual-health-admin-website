@@ -135,6 +135,10 @@ select {
   min-width: 250px;
 }
 
+.teacher-tools-container {
+  flex-direction: column;
+}
+
 .registration-container {
   padding-top: 20px;
   padding-bottom: 20px;
@@ -153,6 +157,7 @@ select {
   width: fit-content;
   border-radius: 5px;
   height: fit-content;
+  margin-bottom: 20px;
 }
 
 .registration-body {
