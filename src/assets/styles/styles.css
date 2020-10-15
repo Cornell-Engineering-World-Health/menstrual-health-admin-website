@@ -135,10 +135,6 @@ select {
   min-width: 250px;
 }
 
-.teacher-tools-container {
-  flex-direction: column;
-}
-
 .registration-container {
   padding-top: 20px;
   padding-bottom: 20px;

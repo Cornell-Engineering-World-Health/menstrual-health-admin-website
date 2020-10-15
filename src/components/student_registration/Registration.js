@@ -4,7 +4,6 @@ import ReactTable from "react-table-6";
 import "react-table-6/react-table.css";
 //COMPONENTS
 import AddBar from "./AddBar.js";
-import { ScriptGenerator } from "../ScriptGenerator/ScriptGenerator.js";
 
 //images
 import images from "../../assets/images/images.js";
@@ -87,22 +86,14 @@ export default class Registration extends React.Component {
           </div>
         </div>
         <div className="registration-container">
-          <div className="teacher-tools-container">
-            <div className="registration-header">
-              <div className="registration-add-student-title">
-                Add New Student
+          <div className="registration-header">
+            <div className="registration-add-student-title">
+              Add New Student
               </div>
-              <AddBar
-                submit={this.props.addStudent}
-                verifyStudent={this.verifyStudent}
-              />
-            </div>
-            <div className="registration-header">
-              <div className="registration-add-student-title">
-                Add Game Assets
-              </div>
-              <ScriptGenerator />
-            </div>
+            <AddBar
+              submit={this.props.addStudent}
+              verifyStudent={this.verifyStudent}
+            />
           </div>
           <div className="registration-body">
             <div className="registration-body-title">
