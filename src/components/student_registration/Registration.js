@@ -89,7 +89,7 @@ export default class Registration extends React.Component {
           <div className="registration-header">
             <div className="registration-add-student-title">
               Add New Student
-              </div>
+            </div>
             <AddBar
               submit={this.props.addStudent}
               verifyStudent={this.verifyStudent}

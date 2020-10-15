@@ -256,3 +256,35 @@ select {
 .registration-info-section-image {
   height: 50px;
 }
+
+.script-generator-container {
+  width: 50%;
+  font-weight: 300;
+  font-size: 25px;
+  box-shadow: 10px 10px 10px -3px rgba(100, 100, 100, 0.2);
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  height: fit-content;
+  margin: 25px 65px;
+}
+
+.script-generator-nav-button {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 20px;
+  cursor: pointer;
+}
+
+.script-generator-nav-button:hover {
+  background-color: #ffeeab;
+}
+
+.script-form {
+  margin: 20px 0;
+}
+
+.script-generator-submit-button {
+  width: 100%;
+  border: none;
+}
