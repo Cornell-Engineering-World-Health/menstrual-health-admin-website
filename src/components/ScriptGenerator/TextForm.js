@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const Form = props => {
+export const TextForm = props => {
   return (
     <form
       className={props.className}
@@ -15,8 +15,6 @@ export const Form = props => {
           value={props.value}
           onChange={props.handleChange}
           placeholder={props.placeholder}
-          onKeyDown={props.onKeyDown}
-          accept={props.accept}
         />
       </label>
     </form>
