@@ -1,24 +1,7 @@
-var options = require("./key.json");
 var endpoint_prefix = "https://menstralhealthgameserver.herokuapp.com/api/";
 
-// Interval Key Retrieval (60 min)
-
-const {
-  dynamic: { setIntervalAsync: setIntervalAsyncD },
-} = require("set-interval-async");
-var auth_key = "";
-var getKeyInterval = setIntervalAsyncD(async () => {
-  console.log("GETTING AUTH KEY");
-  auth_key = await getKey();
-}, 300000);
-
 export async function getKey() {
-  let endpoint = options.url;
-  options.body = JSON.stringify(options.body);
-  const response = await fetch(endpoint, options);
-  var res = await response.json();
-  var token = res.token_type + " " + res.access_token;
-  return token;
+  return process.env.API_KEY;
 }
 
 export async function getUsersByAdmin(admin_id) {
