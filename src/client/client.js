@@ -1,16 +1,15 @@
 var endpoint_prefix = "https://menstralhealthgameserver.herokuapp.com/api/";
 
-export async function getKey() {
+export function getKey() {
   return process.env.API_KEY;
 }
 
 export async function getUsersByAdmin(admin_id) {
   //make call to database
-  auth_key = await getKey();
   let endpoint = endpoint_prefix + "users/admin/" + admin_id;
   const response = await fetch(endpoint, {
     headers: {
-      Authorization: auth_key,
+      Authorization: getKey(),
     },
   });
   var json = await response.json();
@@ -24,7 +23,7 @@ export async function postUser(data) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: auth_key,
+      Authorization: getKey(),
     },
     body: JSON.stringify(data),
   });
@@ -38,7 +37,7 @@ export async function deleteUser(user_id) {
   const response = await fetch(endpoint, {
     method: "DELETE",
     headers: {
-      Authorization: auth_key,
+      Authorization: getKey(),
     },
   });
   var json = await response.json();
