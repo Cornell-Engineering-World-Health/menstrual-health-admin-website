@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useFlexLayout } from 'react-table';
 import { TextForm } from "./TextForm.js";
 import ReactTooltip from "react-tooltip";
@@ -21,26 +21,68 @@ const styles = {
   },
   button: {
     border: 'none',
-    margin: '20px 0',
+    backgroundColor: '#ffeeab',
+    marginBottom: '2%',
+    padding: '5px 10px',
+    fontSize: '17px',
     cursor: 'pointer',
+    textAlign: 'right',
+    fontFamily: 'Lato, sans-serif',
+    fontWeight: '300',
+  },
+  buttonContainer: {
+    width: '100%',
+    textAlign: 'right',
   },
   printJson: {
     fontSize: '17px',
     margin: '5px 0',
   },
-  buttonsContainer: {
+  buttonFlexContainer: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+  },
+  tableRow: {
+    border: 'none',
+  },
+  tableData: {
+    border: '1px solid grey',
+    padding: '5px 0',
+    textAlign: 'center',
+    fontSize: '17px',
   },
 }
 
 const allCharsArray = [{ id: 1, name: "tam", image: "hello.png" }, { id: 2, name: "sophie", image: "sophie.jpg" }];
 const allScenesArray = [];
 const framesPerScene = [];
-const allQuestionsArray = [];
+const allQuestionsArray = [
+  {
+    question_text: "When does puberty occur in girls?",
+    explanation_text: "Ages 13-16",
+    question_id: 1,
+    question_audio: "question1.wav",
+    explanation_audio: "answer1.wav",
+    type: "multiple_choice",
+    image_options: ["what.png", "yo.png"],
+    choices: ["Ages 13-16", "Ages 10-12", "Ages 19-21", "Ages 8-10"],
+    correct_answer: ["Ages 13-16"]
+  },
+  {
+    question_text: "When does puberty occur in girls?",
+    explanation_text: "Ages 13-16",
+    question_id: 1,
+    question_audio: "question1.wav",
+    explanation_audio: "answer1.wav",
+    type: "multiple_choice",
+    image_options: ["what.png", "yo.png"],
+    choices: ["Ages 13-16", "Ages 10-12", "Ages 19-21", "Ages 8-10"],
+    correct_answer: ["Ages 13-16"]
+  }
+];
 
 export const ScriptGenerator = () => {
+  const inputFileRef = useRef(null);
   // navSwitch = "character", "module", or "questions"
   const [navSwitch, setNavSwitch] = useState("character");
   // For characters.json
@@ -65,13 +107,14 @@ export const ScriptGenerator = () => {
   })
   // For questions.json
   const [question, setQuestion] = useState({
-    qText: "",
-    aText: "",
-    qAudio: "",
-    aAudio: "",
-    type: "",
+    questionText: "",
+    answerText: "",
+    questionAudio: "",
+    answerAudio: "",
+    questionType: "",
     images: [],
-    a: []
+    answerChoices: [],
+    correctAnswer: []
   })
 
   // TODO: only get filename...
@@ -113,7 +156,7 @@ export const ScriptGenerator = () => {
     let id = allCharsArray.length + 1; // id of next character
     allCharsArray.push({
       id: id,
-      name: char.charName.charAt(0).toUpperCase() + char.charName.slice(1),
+      name: char.charName.charAt(0).toUpperCase() + char.charName.slice(1).toLowerCase(),
       image: `${char.charFile}`
     })
     setChar({
@@ -337,82 +380,95 @@ export const ScriptGenerator = () => {
     }
   }
 
+  const populateCharTable = () => {
+    return allCharsArray.map((char) => {
+      return (
+        <tr>
+          <td style={styles.tableData}>{char.name}</td>
+          <td style={styles.tableData}>{char.image}</td>
+        </tr>
+      );
+    })
+  }
+
+  const generateQuestionCards = () => {
+    return allQuestionsArray.map((q) => {
+      return (
+        <div className="script-generator-question-card">
+          <p><span style={{ fontWeight: "bold" }}>Question:</span> {q.question_text}</p>
+          <p><span style={{ fontWeight: "bold" }}>Explanation:</span> {q.explanation_text}</p>
+          <p><span style={{ fontWeight: "bold" }}>Question Audio:</span> {q.question_audio}</p>
+          <p><span style={{ fontWeight: "bold" }}>Answer Audio:</span> {q.explanation_audio}</p>
+          <p><span style={{ fontWeight: "bold" }}>Type:</span> {q.type}</p>
+          <p>
+            <span style={{ fontWeight: "bold" }}>Image Options: </span>
+            {q.image_options.map((image) => { return image + ", " })}
+          </p>
+          <p>
+            <span style={{ fontWeight: "bold" }}>Answer Choices:</span>
+            {q.choices.map((choice) => { return choice + ", " })}</p>
+          <p><span style={{ fontWeight: "bold" }}>Correct/Current Answer:</span> {q.correct_answer}</p>
+        </div>
+      );
+    })
+  }
+
   return (
-    <div style={styles.split}>
-      <div className="script-generator-container">
-        <div className="registration-add-student-title">Generate JSON Script</div>
-        <div style={styles.scriptNav}>
-          <div
-            className="script-generator-nav-button"
-            style={navSwitch === "character" ? { textDecoration: 'underline' } : { textDecoration: 'none' }}
-            onClick={() => setNavSwitch("character")}
-          >
-            Character
-        </div>
-          <div
-            className="script-generator-nav-button"
-            style={navSwitch === "module" ? { textDecoration: 'underline' } : { textDecoration: 'none' }}
-            onClick={() => setNavSwitch("module")}
-          >
-            Module
-        </div>
-          <div
-            className="script-generator-nav-button"
-            style={navSwitch === "question" ? { textDecoration: 'underline' } : { textDecoration: 'none' }}
-            onClick={() => setNavSwitch("question")}>
-            Questions
-        </div>
-        </div>
-        {navSwitch === "character" &&
-          <div>
-            <form
-              className="large-form"
-              onSubmit={e => {
-                e.preventDefault();
-              }}
-              encType="multipart/form-data"
-            >
-              <input type="hidden" value="10000000" required />
-              <input
-                name="charName"
-                type="text"
-                value={char.charName}
-                onChange={handleCharChange}
-                placeholder="Character Name*"
-                className="large-form script-form"
-              />
-              <label id="char_file" for="char_file" style={styles.label}>Character Image:</label>
-              <input
-                name="charFile"
-                type="file"
-                value={char.charFile}
-                onChange={handleCharChange}
-                accept="image/*"
-                id="char_file"
-                className="script-form"
-              />
-              <div style={styles.button} className={"addbar-submit-button"} onClick={onCharSubmit}>
-                Add Character
-              </div>
-            </form>
-            <a
-              className={"addbar-submit-button"}
-              style={styles.button}
-              href={"data:'text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allCharsArray)) + "'"}
-              download="character.json"
-            >
-              Download JSON
-            </a>
+    <div>
+      <div className="script-generator-table-container">
+        Generate/Upload Character JSON
+        <form
+          onSubmit={e => {
+            e.preventDefault();
+          }}
+          encType="multipart/form-data"
+        >
+          <input type="hidden" value="10000000" required />
+          <table className="script-generator-table">
+            <tr style={styles.tableRow}>
+              <th style={styles.tableData}>Name</th>
+              <th style={styles.tableData}>Image File</th>
+            </tr>
+            {populateCharTable()}
+            <tr>
+              <td style={styles.tableData}>
+                <input
+                  name="charName"
+                  type="text"
+                  value={char.charName}
+                  onChange={handleCharChange}
+                  placeholder="Character Name*"
+                  className="script-form"
+                />
+              </td>
+              <td style={styles.tableData}>
+                <input
+                  name="charFile"
+                  type="file"
+                  value={char.charFile}
+                  onChange={handleCharChange}
+                  accept="image/*"
+                  id="char_file"
+                />
+              </td>
+            </tr>
+          </table>
+          <div style={styles.buttonContainer}>
+            <button style={styles.button} onClick={onCharSubmit}>Add Character</button>
           </div>
-        }
-        {navSwitch === "module" &&
-          <div>
-            {moduleForm()}
-          </div>
-        }
-        {navSwitch === "question" &&
+          <div>{JSON.stringify(allCharsArray, null, 2)} </div>
+        </form>
+        <div style={styles.buttonFlexContainer}>
+          <a
+            style={{ marginRight: '2%' }}
+            className={"addbar-submit-button"}
+            href={"data:'text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allCharsArray)) + "'"}
+            download="character.json"
+          >
+            Download JSON
+          </a>
           <form
-            className="large-form"
+            className={"addbar-submit-button"}
             onSubmit={e => {
               e.preventDefault();
             }}
@@ -420,93 +476,158 @@ export const ScriptGenerator = () => {
           >
             <input type="hidden" value="10000000" required />
             <input
-              name="modNum"
-              type="number"
-              value={modNum}
-              onChange={(e) => setModNum(e.target.value)}
-              placeholder="Module Number*"
-            />
-            <input
-              name="qText"
-              type="text"
-              value={question.qText}
-              onChange={handleQuestionChange}
-              placeholder="Question Text*"
-              className="large-form script-form"
-            />
-            <input
-              name="aText"
-              type="text"
-              value={question.aText}
-              onChange={handleQuestionChange}
-              placeholder="Explanation Text*"
-              className="large-form script-form"
-            />
-            <div className="script-form">
-              <label id="question_audio" htmlFor="question_audio" style={styles.label}>Question Audio:</label>
-              <input
-                name="qAudio"
-                type="file"
-                value={question.qAudio}
-                onChange={handleQuestionChange}
-                accept="audio/*"
-                id="question_audio"
-              />
-            </div>
-            <label id="answer_audio" htmlFor="answer_audio" style={styles.label}>Answer Audio:</label>
-            <input
-              name="aAudio"
+              name="uploadFile"
               type="file"
-              value={question.aAudio}
-              onChange={handleQuestionChange}
-              accept="audio/*"
-              id="answer_audio"
-              className="script-form"
+              value={char.charFile}
+              onChange={handleCharChange}
+              accept="image/*"
+              id="char_file"
+              ref={inputFileRef}
+              style={{ display: "none" }}
             />
-            <div className="script-form">
-              <label id="question_type" htmlFor="question_type" style={styles.label}>Question Type:</label>
-              <select name="type" id="question_type">
-                <option value="multiple_choice">Multiple Choice</option>
-                <option value="drag_and_drop">Drag &amp; Drop</option>
-              </select>
-            </div>
-            <label style={styles.label}>Answer Images (in order if drag &amp; drop)</label>
-            <input
-              name="images"
-              type="file"
-              multiple
-              value={question.images}
-              onChange={handleQuestionChange}
-              accept="images/*"
-              className="script-form"
-            />
-            <input
-              name="a"
-              type="text"
-              value={question.a}
-              onChange={handleQuestionChange}
-              placeholder="Correct Answer(s) (separate by commas)*"
-              className="large-form script-form"
-            />
-            <div style={styles.button} className={"addbar-submit-button"}>
-              {script.charId ? "Add Frame" : "Submit"}
-            </div>
+            <label onClick={() => inputFileRef.current.click()} id="char_file" htmlFor="char_file">
+              Upload JSON
+            </label>
           </form>
-        }
+        </div>
       </div>
-      <div className="script-generator-container">
-        <div className="registration-add-student-title">character.JSON</div>
-        <div style={styles.printJson}>
-          {allCharsArray.length > 0 ? JSON.stringify(allCharsArray) : null}
+
+      <div className="script-generator-table-container">
+        Generate/Upload Question JSON
+        <div className="script-generator-question-card-container">
+          {generateQuestionCards()}
         </div>
-        <div className="registration-add-student-title">module.JSON</div>
-        <div style={styles.printJson}>
-          <div>Scenes</div>
-          {allScenesArray.length > 0 ? JSON.stringify(allScenesArray) : null}
-          <div>Frames</div>
-          {framesPerScene.length > 0 && allScenesArray.length === 0 ? JSON.stringify(framesPerScene) : null}
+      </div>
+
+
+
+
+
+
+      <div>
+        <div style={styles.split}>
+          <div className="script-generator-container">
+            <div className="registration-add-student-title">Generate JSON Script</div>
+            <div style={styles.scriptNav}>
+
+              <div
+                className="script-generator-nav-button"
+                style={navSwitch === "module" ? { textDecoration: 'underline' } : { textDecoration: 'none' }}
+                onClick={() => setNavSwitch("module")}
+              >
+                Module
         </div>
-        <div className="registration-add-student-title">questions.JSON</div>
+              <div
+                className="script-generator-nav-button"
+                style={navSwitch === "question" ? { textDecoration: 'underline' } : { textDecoration: 'none' }}
+                onClick={() => setNavSwitch("question")}>
+                Questions
+        </div>
+            </div>
+            {navSwitch === "module" &&
+              <div>
+                {moduleForm()}
+              </div>
+            }
+            {navSwitch === "question" &&
+              <form
+                className="large-form"
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+              >
+                <input type="hidden" value="10000000" required />
+                <input
+                  name="modNum"
+                  type="number"
+                  value={modNum}
+                  onChange={(e) => setModNum(e.target.value)}
+                  placeholder="Module Number*"
+                />
+                <input
+                  name="qText"
+                  type="text"
+                  value={question.qText}
+                  onChange={handleQuestionChange}
+                  placeholder="Question Text*"
+                  className="large-form script-form"
+                />
+                <input
+                  name="aText"
+                  type="text"
+                  value={question.aText}
+                  onChange={handleQuestionChange}
+                  placeholder="Explanation Text*"
+                  className="large-form script-form"
+                />
+                <div className="script-form">
+                  <label id="question_audio" htmlFor="question_audio" style={styles.label}>Question Audio:</label>
+                  <input
+                    name="qAudio"
+                    type="file"
+                    value={question.qAudio}
+                    onChange={handleQuestionChange}
+                    accept="audio/*"
+                    id="question_audio"
+                  />
+                </div>
+                <label id="answer_audio" htmlFor="answer_audio" style={styles.label}>Answer Audio:</label>
+                <input
+                  name="aAudio"
+                  type="file"
+                  value={question.aAudio}
+                  onChange={handleQuestionChange}
+                  accept="audio/*"
+                  id="answer_audio"
+                  className="script-form"
+                />
+                <div className="script-form">
+                  <label id="question_type" htmlFor="question_type" style={styles.label}>Question Type:</label>
+                  <select name="type" id="question_type">
+                    <option value="multiple_choice">Multiple Choice</option>
+                    <option value="drag_and_drop">Drag &amp; Drop</option>
+                  </select>
+                </div>
+                <label style={styles.label}>Answer Images (in order if drag &amp; drop)</label>
+                <input
+                  name="images"
+                  type="file"
+                  multiple
+                  value={question.images}
+                  onChange={handleQuestionChange}
+                  accept="images/*"
+                  className="script-form"
+                />
+                <input
+                  name="a"
+                  type="text"
+                  value={question.a}
+                  onChange={handleQuestionChange}
+                  placeholder="Correct Answer(s) (separate by commas)*"
+                  className="large-form script-form"
+                />
+                <div style={styles.button} className={"addbar-submit-button"}>
+                  {script.charId ? "Add Frame" : "Submit"}
+                </div>
+              </form>
+            }
+          </div>
+          <div className="script-generator-container">
+            <div className="registration-add-student-title">character.JSON</div>
+            <div style={styles.printJson}>
+              {allCharsArray.length > 0 ? JSON.stringify(allCharsArray) : null}
+            </div>
+            <div className="registration-add-student-title">module.JSON</div>
+            <div style={styles.printJson}>
+              <div>Scenes</div>
+              {allScenesArray.length > 0 ? JSON.stringify(allScenesArray) : null}
+              <div>Frames</div>
+              {framesPerScene.length > 0 && allScenesArray.length === 0 ? JSON.stringify(framesPerScene) : null}
+            </div>
+            <div className="registration-add-student-title">questions.JSON</div>
+          </div>
+        </div>
       </div>
     </div>
   );
