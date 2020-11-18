@@ -3,6 +3,8 @@ import { useFlexLayout } from 'react-table';
 import { TextForm } from "./TextForm.js";
 import ReactTooltip from "react-tooltip";
 
+import "./ScriptGenerator.css";
+
 const styles = {
   scriptNav: {
     display: 'flex',
@@ -19,33 +21,7 @@ const styles = {
     color: '#757575',
     margin: '0 20px',
   },
-  button: {
-    border: 'none',
-    backgroundColor: '#ffeeab',
-    marginBottom: '2%',
-    padding: '5px 10px',
-    fontSize: '17px',
-    cursor: 'pointer',
-    textAlign: 'right',
-    fontFamily: 'Lato, sans-serif',
-    fontWeight: '300',
-  },
-  buttonContainer: {
-    width: '100%',
-    textAlign: 'right',
-  },
-  printJson: {
-    fontSize: '17px',
-    margin: '5px 0',
-  },
-  buttonFlexContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
-  tableRow: {
-    border: 'none',
-  },
-  tableData: {
+  charTableData: {
     border: '1px solid grey',
     padding: '5px 0',
     textAlign: 'center',
@@ -82,7 +58,7 @@ const allQuestionsArray = [
 ];
 
 export const ScriptGenerator = () => {
-  const inputFileRef = useRef(null);
+  const [tabSwitch, setTabSwitch] = useState("character");
   // navSwitch = "character", "module", or "questions"
   const [navSwitch, setNavSwitch] = useState("character");
   // For characters.json
@@ -90,6 +66,7 @@ export const ScriptGenerator = () => {
     charName: "",
     charFile: "",
   });
+
   // Module number
   const [modNum, setModNum] = useState("");
   // scenes = scenes, script = frames within a scene
@@ -357,8 +334,7 @@ export const ScriptGenerator = () => {
             />
           </form>
           <a
-            className={"addbar-submit-button"}
-            style={styles.button}
+            className="button"
             href={"data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allScenesArray))}
             download={`module${modNum}.json`}
           >
@@ -384,17 +360,33 @@ export const ScriptGenerator = () => {
     return allCharsArray.map((char) => {
       return (
         <tr>
-          <td style={styles.tableData}>{char.name}</td>
-          <td style={styles.tableData}>{char.image}</td>
+          <td style={styles.charTableData}>{char.name}</td>
+          <td style={styles.charTableData}>{char.image}</td>
         </tr>
       );
     })
   }
 
+  const [uploadChar, setUploadChar] = useState("");
+  const [editedCharJson, setEditedCharJson] = useState("");
+  const uploadCharJson = (e) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = async (e) => {
+      let result = e.target.result
+      console.log("e.target.result" + result);
+      setUploadChar(result);
+    };
+  };
+
+  const handleCharJsonChange = (e) => {
+    setEditedCharJson(e.target.value);
+  }
+
   const generateQuestionCards = () => {
     return allQuestionsArray.map((q) => {
       return (
-        <div className="script-generator-question-card">
+        <div className="script-generator-form-card">
           <p><span style={{ fontWeight: "bold" }}>Question:</span> {q.question_text}</p>
           <p><span style={{ fontWeight: "bold" }}>Explanation:</span> {q.explanation_text}</p>
           <p><span style={{ fontWeight: "bold" }}>Question Audio:</span> {q.question_audio}</p>
@@ -414,90 +406,217 @@ export const ScriptGenerator = () => {
   }
 
   return (
-    <div>
-      <div className="script-generator-table-container">
-        Generate/Upload Character JSON
-        <form
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-          encType="multipart/form-data"
-        >
-          <input type="hidden" value="10000000" required />
-          <table className="script-generator-table">
-            <tr style={styles.tableRow}>
-              <th style={styles.tableData}>Name</th>
-              <th style={styles.tableData}>Image File</th>
-            </tr>
-            {populateCharTable()}
-            <tr>
-              <td style={styles.tableData}>
+    <div className="script-generator-container">
+      <nav>
+        <ul>
+          <li onClick={(e) => setTabSwitch("character")}>Character</li>
+          <li onClick={(e) => setTabSwitch("module")}>Module</li>
+          <li onClick={(e) => setTabSwitch("question")}>Question</li>
+        </ul>
+      </nav>
+      {tabSwitch === "character" &&
+        <div /* Character JSON wrapper */ >
+          <h1>Generate/Upload Character JSON</h1>
+          <div className="script-generator-page-container">
+            <section>
+              <h2>Add Characters</h2>
+              <h3>1. Add characters using the form below. They will appear in the table!</h3>
+              <table className="script-generator-table">
+                <thead>
+                  <tr>
+                    <th style={styles.charTableData}>Name</th>
+                    <th style={styles.charTableData}>Image File</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {populateCharTable()}
+                </tbody>
+              </table>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+                className="script-generator-form-card"
+              >
+                <input type="hidden" value="10000000" required />
                 <input
                   name="charName"
                   type="text"
                   value={char.charName}
                   onChange={handleCharChange}
                   placeholder="Character Name*"
-                  className="script-form"
                 />
-              </td>
-              <td style={styles.tableData}>
                 <input
                   name="charFile"
                   type="file"
                   value={char.charFile}
                   onChange={handleCharChange}
                   accept="image/*"
-                  id="char_file"
                 />
-              </td>
-            </tr>
-          </table>
-          <div style={styles.buttonContainer}>
-            <button style={styles.button} onClick={onCharSubmit}>Add Character</button>
+                <button onClick={onCharSubmit}>
+                  Add Character
+              </button>
+              </form>
+            </section>
+            <section>
+              <h3>2. Download resulting JSON</h3>
+              <div>
+                <button>
+                  <a
+                    href={"data:'text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allCharsArray)) + "'"}
+                    download="character.json"
+                  >
+                    Download JSON
+                </a>
+                </button>
+              </div>
+            </section>
           </div>
-          <div>{JSON.stringify(allCharsArray, null, 2)} </div>
-        </form>
-        <div style={styles.buttonFlexContainer}>
-          <a
-            style={{ marginRight: '2%' }}
-            className={"addbar-submit-button"}
-            href={"data:'text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allCharsArray)) + "'"}
-            download="character.json"
-          >
-            Download JSON
-          </a>
-          <form
-            className={"addbar-submit-button"}
-            onSubmit={e => {
-              e.preventDefault();
-            }}
-            encType="multipart/form-data"
-          >
-            <input type="hidden" value="10000000" required />
-            <input
-              name="uploadFile"
-              type="file"
-              value={char.charFile}
-              onChange={handleCharChange}
-              accept="image/*"
-              id="char_file"
-              ref={inputFileRef}
-              style={{ display: "none" }}
-            />
-            <label onClick={() => inputFileRef.current.click()} id="char_file" htmlFor="char_file">
-              Upload JSON
-            </label>
-          </form>
+          <div className="script-generator-page-container">
+            <h2>Upload &amp; Edit Existing JSON</h2>
+            <h3>1. Upload the existing JSON file. JSON format only. The JSON will appear in the text area below in string type.</h3>
+            <div>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+                className="script-generator-form-card"
+              >
+                <input
+                  name="uploadChar"
+                  type="file"
+                  accept=".json"
+                  onChange={uploadCharJson}
+                />
+                <button onClick={() => { setEditedCharJson(uploadChar) }}>
+                  Upload
+                </button>
+              </form>
+              <h3>2. Edit the JSON text. Click download when done and the JSON will print to the console!</h3>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+                className="script-generator-form-card"
+              >
+                <input
+                  name="editExistingFile"
+                  type="textarea"
+                  value={editedCharJson}
+                  onChange={handleCharJsonChange}
+                  rows="30"
+                  placeholder="Uploaded JSON will appear here..."
+                />
+                <button
+                  onClick={() => { console.log(JSON.parse(editedCharJson.substring(0, editedCharJson.length - 1))) }}
+                >
+                  Download Edited JSON
+                </button>
+              </form>
+            </div>
+          </div>
         </div>
-      </div>
+      }
 
-      <div className="script-generator-table-container">
-        Generate/Upload Question JSON
-        <div className="script-generator-question-card-container">
-          {generateQuestionCards()}
+      {tabSwitch === "question" &&
+        <div>
+          <h1>Generate/Edit Question JSON</h1>
+          <div className="script-generator-page-container">
+            <section>
+              <h2>Add Questions</h2>
+              <h3>1. Add questions using the form below.</h3>
+              <form
+                className="large-form"
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+                className="script-generator-form-card"
+              >
+                <input type="hidden" value="10000000" required />
+                <input
+                  name="modNum"
+                  type="number"
+                  value={modNum}
+                  onChange={(e) => setModNum(e.target.value)}
+                  placeholder="Module Number*"
+                />
+                <input
+                  name="qText"
+                  type="text"
+                  value={question.qText}
+                  onChange={handleQuestionChange}
+                  placeholder="Question Text*"
+                />
+                <input
+                  name="aText"
+                  type="text"
+                  value={question.aText}
+                  onChange={handleQuestionChange}
+                  placeholder="Explanation Text*"
+                />
+                <label id="question_audio" htmlFor="question_audio">Question Audio:</label>
+                <input
+                  name="qAudio"
+                  type="file"
+                  value={question.qAudio}
+                  onChange={handleQuestionChange}
+                  accept="audio/*"
+                  id="question_audio"
+                />
+                <label id="answer_audio" htmlFor="answer_audio">Answer Audio:</label>
+                <input
+                  name="aAudio"
+                  type="file"
+                  value={question.aAudio}
+                  onChange={handleQuestionChange}
+                  accept="audio/*"
+                  id="answer_audio"
+                />
+                <div className="script-form">
+                  <label id="question_type" htmlFor="question_type" style={styles.label}>Question Type:</label>
+                  <select name="type" id="question_type">
+                    <option value="multiple_choice">Multiple Choice</option>
+                    <option value="drag_and_drop">Drag &amp; Drop</option>
+                  </select>
+                </div>
+                <label style={styles.label}>Answer Images (in order if drag &amp; drop)</label>
+                <input
+                  name="images"
+                  type="file"
+                  multiple
+                  value={question.images}
+                  onChange={handleQuestionChange}
+                  accept="images/*"
+                  className="script-form"
+                />
+                <input
+                  name="a"
+                  type="text"
+                  value={question.a}
+                  onChange={handleQuestionChange}
+                  placeholder="Correct Answer(s) (separate by commas)*"
+                  className="large-form script-form"
+                />
+                <div style={styles.button} className={"addbar-submit-button"}>
+                  {script.charId ? "Add Frame" : "Submit"}
+                </div>
+              </form>
+            </section>
+            <section>
+              <h3>2. Download resulting JSON.</h3>
+            </section>
+            <section>
+              <h3>3. View the Q's you have added by clicking "Show All".</h3>
+              {generateQuestionCards()}
+            </section>
+          </div>
         </div>
-      </div>
+      }
+
 
 
 
@@ -536,6 +655,7 @@ export const ScriptGenerator = () => {
                   e.preventDefault();
                 }}
                 encType="multipart/form-data"
+
               >
                 <input type="hidden" value="10000000" required />
                 <input
@@ -613,22 +733,9 @@ export const ScriptGenerator = () => {
               </form>
             }
           </div>
-          <div className="script-generator-container">
-            <div className="registration-add-student-title">character.JSON</div>
-            <div style={styles.printJson}>
-              {allCharsArray.length > 0 ? JSON.stringify(allCharsArray) : null}
-            </div>
-            <div className="registration-add-student-title">module.JSON</div>
-            <div style={styles.printJson}>
-              <div>Scenes</div>
-              {allScenesArray.length > 0 ? JSON.stringify(allScenesArray) : null}
-              <div>Frames</div>
-              {framesPerScene.length > 0 && allScenesArray.length === 0 ? JSON.stringify(framesPerScene) : null}
-            </div>
-            <div className="registration-add-student-title">questions.JSON</div>
-          </div>
+
         </div>
       </div>
-    </div>
+    </div >
   );
 }
