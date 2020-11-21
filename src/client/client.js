@@ -1,4 +1,4 @@
-var endpoint_prefix = "https://menstralhealthgameserver.herokuapp.com/api/";
+var endpoint_prefix = "https://healthfriendgameserver.herokuapp.com/api/";
 
 export function getKey() {
   return process.env.API_KEY;
