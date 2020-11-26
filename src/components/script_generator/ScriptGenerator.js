@@ -1,10 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { useFlexLayout } from 'react-table';
-import { TextForm } from "./TextForm.js";
-import ReactTooltip from "react-tooltip";
+import React, { useState } from 'react';
 
 import "./ScriptGenerator.css";
-import userEvent from '@testing-library/user-event';
 
 const styles = {
   charTableData: {
@@ -13,37 +9,26 @@ const styles = {
     textAlign: 'center',
     fontSize: '17px',
   },
+  errorMessage: {
+    fontWeight: 'bold',
+    backgroundColor: '#ffcfd6',
+    padding: '1%'
+  },
+  scriptInput: {
+    display: 'block',
+    margin: '2% 0',
+    width: '100%',
+  }
 }
 
-const allCharsArray = [{ id: 1, name: "tam", image: "hello.png" }, { id: 2, name: "sophie", image: "sophie.jpg" }];
-const allScenesArray = [];
-const framesPerScene = [];
-const allQuestionsArray = [
-  {
-    question_text: "When does puberty occur in girls?",
-    explanation_text: "Ages 13-16",
-    question_id: 1,
-    question_audio: "question1.wav",
-    explanation_audio: "answer1.wav",
-    type: "multiple_choice",
-    image_options: ["what.png", "yo.png"],
-    choices: ["Ages 13-16", "Ages 10-12", "Ages 19-21", "Ages 8-10"],
-    correct_answer: ["Ages 13-16"]
-  },
-  {
-    question_text: "When does puberty occur in girls?",
-    explanation_text: "Ages 13-16",
-    question_id: 1,
-    question_audio: "question1.wav",
-    explanation_audio: "answer1.wav",
-    type: "multiple_choice",
-    image_options: ["what.png", "yo.png"],
-    choices: ["Ages 13-16", "Ages 10-12", "Ages 19-21", "Ages 8-10"],
-    correct_answer: ["Ages 13-16"]
-  }
-];
+let allCharsArray = [];
+let moduleArray = [];
+let allScenesArray = [];
+let allQuestionsArray = [];
 
 export const ScriptGenerator = () => {
+  // Error messages
+  const [error, setError] = useState("");
   // tabSwitch = "character", "module", or "questions"
   const [tabSwitch, setTabSwitch] = useState("character");
 
@@ -89,29 +74,10 @@ export const ScriptGenerator = () => {
     })
   }
 
-  // Upload & edit existing Character.json state variables
-  const [uploadChar, setUploadChar] = useState(""); // Stores the uploaded file
-  const [editedCharJson, setEditedCharJson] = useState(""); // Stores edits to the file
-
-  // Upload & edit Character.json methods
-  // Read uploaded JSON into a textarea field editedCharJson
-  const handleCharJsonSubmit = (e) => {
-    const fileReader = new FileReader();
-    fileReader.readAsText(e.target.files[0], "UTF-8");
-    fileReader.onload = async (e) => {
-      let result = e.target.result
-      setUploadChar(result);
-    };
-  };
-
-  // Record edits to the file
-  const handleCharJsonChange = (e) => {
-    setEditedCharJson(e.target.value);
-  }
-
 
   // Questions.json state variables
   const [questionType, setQuestionType] = useState("multiple_choice"); // Question type
+  const [showQuestions, setShowQuestions] = useState(false); // View all Q's added or not
   const [question, setQuestion] = useState({
     questionText: "",
     explanationText: "",
@@ -171,18 +137,32 @@ export const ScriptGenerator = () => {
       correctAnswer: "",
       orderedImages: []
     });
+    allQuestionsArray = [];
   }
 
+  // MODULE JSON CONST & METHODS
+  // Module number
+  const [modNum, setModNum] = useState("");
+  const [modTitle, setModTitle] = useState("");
+  // scenes = scenes, script split into "parts"
+  const [scenes, setScenes] = useState({
+    background: "",
+    charList: "",
+  })
+  const [showScenes, setShowScenes] = useState(false); // Toggle show all scenes 
+  const [chooseScene, setChooseScene] = useState(""); // Select which scene to add a script to  in form
+  const [scriptPartType, setScriptPartType] = useState("action"); // Action or dialogue?
+  const [script, setScript] = useState({
+    charId: "",
+    actionType: "",
+    dialogue: "",
+    dialogueFile: "",
+    dialoguePopOutImage: "",
+  })
+  const [popOutImage, setPopOutImage] = useState(false); // If there is a pop-out image accompanying dialogue
+  const [scriptError, setScriptError] = useState(""); // Only occurs if user tries to add a script without adding a scene first
 
-
-  const handleScenesChange = (event) => {
-    const name = event.target.name;
-    setScenes({
-      ...scenes,
-      [name]: event.target.value,
-    });
-  };
-
+  // Module.json input handleChange method
   const handleScriptChange = (event) => {
     const name = event.target.name;
     setScript({
@@ -191,209 +171,125 @@ export const ScriptGenerator = () => {
     });
   };
 
-
-
-  // Module number
-  const [modNum, setModNum] = useState("");
-  // scenes = scenes, script = frames within a scene
-  const [scenes, setScenes] = useState({
-    background: "",
-    charList: "",
-    script: [],
-  })
-  const [script, setScript] = useState({
-    type: "action",
-    charId: "1",
-    actionType: "",
-    dialogue: "",
-    dialogueFile: "",
-  })
-
-  const onFrameSubmit = (event) => {
-    event.preventDefault();
-    framesPerScene.push({
-      type: `${script.type}`,
-      character_id: parseInt(script.charId),
-      action_type: `${script.actionType}`,
-      dialogue: `${script.dialogue}`,
-      dialogue_file: `${script.dialogueFile}`
-    })
-    console.log(framesPerScene);
-    setScript({
-      type: "action",
-      charId: "1",
-      actionType: "",
-      dialogue: "",
-      dialogueFile: "",
-    })
-  }
-
+  // When user submits a scene (no script)
   const onSceneSubmit = (event) => {
     event.preventDefault();
+    setScriptError("");
     let charArray = scenes.charList.split(",");
     allScenesArray.push({
       background: `${scenes.background}`,
       characters: charArray.map(elem => parseInt(elem)),
-      script: framesPerScene.map(elem => { return (elem) })
+      script: [],
     });
-    console.log(allScenesArray);
     setScenes({
       background: "",
       charList: "",
-      script: [],
+    });
+  }
+
+  // When user submits a script of a scene
+  const onScriptPartSubmit = (event) => {
+    event.preventDefault();
+    if (allScenesArray.length === 0) {
+      setScriptError("Error: Add a scene before adding a script!");
+      return false;
+    } else if (chooseScene === "") {
+      setScriptError("Error: Please select a scene.");
+      return false;
+    }
+    // Adds script part to its respective scene in master scene array (allScenesArray[])
+    let scriptPart = allScenesArray[chooseScene].script;
+    if (scriptPartType === "action") {
+      scriptPart.push({
+        type: "action",
+        character_id: script.charId,
+        action_type: `${script.actionType}`
+      })
+    } else {
+      if (popOutImage) {
+        scriptPart.push({
+          type: "line",
+          character_id: script.charId,
+          dialogue: `${script.dialogue}`,
+          dialogue_file: `${script.dialogueFile}`,
+          pop_out_image: `${script.dialoguePopOutImage}`
+        })
+      } else {
+        scriptPart.push({
+          type: "line",
+          character_id: script.charId,
+          dialogue: `${script.dialogue}`,
+          dialogue_file: `${script.dialogueFile}`
+        })
+      }
+    }
+    setScript({
+      charId: "",
+      actionType: "",
+      dialogue: "",
+      dialogueFile: "",
+      dialoguePopOutImage: "",
     })
   }
 
+  // Downloads module.json
   const onModuleSubmit = (event) => {
     event.preventDefault();
-    allCharsArray = [{ id: 1, name: "tam", image: "hello.png" }, { id: 2, name: "sophie", image: "sophie.jpg" }];
+    moduleArray.push({
+      id: modNum,
+      title: `${modTitle}`,
+      assessment_path: "questions" + modNum + ".json",
+      scenes: allScenesArray
+    });
+    const link = document.createElement('a');
+    link.download = `module${modNum}.json`;
+    link.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(moduleArray, null, 2));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    moduleArray = [];
     allScenesArray = [];
-    framesPerScene = [];
   }
 
 
+  // Upload & edit existing JSON files
+  const [uploadJson, setUploadJson] = useState(""); // Stores the uploaded file
+  const [editedJson, setEditedJson] = useState(""); // Stores edits to the file
 
-  // Adding module.json assets
-  const [addModule, setAddModule] = useState("frame");
-  const moduleForm = () => {
-    // Adding all the frames within one scene
-    if (addModule === "frame") {
-      return (
-        <form
-          className="large-form"
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-          encType="multipart/form-data"
-        >
-          <input type="hidden" value="10000000" required />
-          <div className="script-form">
-            <label id="frame_type" htmlFor="frame_type">Action or Dialogue?*</label>
-            <select name="type" value={script.type} onChange={handleScriptChange} className="large-form" id="frame_type">
-              <option value="action">Action</option>
-              <option value="line">Dialogue</option>
-            </select>
-          </div>
-          <div className="script-form">
-            <label id="frame_type" htmlFor="frame_type">Character*</label>
-            <select name="charId" value={script.charId} onChange={handleScriptChange} className="large-form" id="frame_type">
-              {allCharsArray.map(elem => {
-                return (
-                  <option value={elem.id}>{elem.name}</option>
-                );
-              })}
-            </select>
-          </div>
-          <input
-            name="actionType"
-            type="text"
-            value={script.actionType}
-            onChange={handleScriptChange}
-            placeholder="Action Type"
-            className="large-form script-form"
-          />
-          <input
-            name="dialogue"
-            type="text"
-            value={script.dialogue}
-            onChange={handleScriptChange}
-            placeholder="Dialogue"
-            className="large-form script-form"
-          />
-          <label id="dialogue_file" htmlFor="dialogue_file">Dialogue Audio</label>
-          <input
-            name="dialogueFile"
-            type="file"
-            value={script.dialogueFile}
-            onChange={handleScriptChange}
-            accept="audio/*"
-            id="dialogue_file"
-            className="script-form"
-          />
-          <div style={styles.buttonsContainer}>
-            <div style={styles.button} className={"addbar-submit-button"} onClick={onFrameSubmit}>Add Frame to Scene</div>
-            <div style={styles.button} className={"addbar-submit-button"} onClick={() => setAddModule("scene")}>All Frames Added!</div>
-          </div>
-        </form>
+  // Upload & edit Character.json methods
+  // Read uploaded JSON into a textarea field editedJson
+  const handleUploadJsonSubmit = (e) => {
+    const fileReader = new FileReader();
+    fileReader.readAsText(e.target.files[0], "UTF-8");
+    fileReader.onload = async (e) => {
+      let result = e.target.result
+      setUploadJson(result);
+    };
+  };
 
-      );
+  // Record edits to the file
+  const handleEditJsonChange = (e) => {
+    setEditedJson(e.target.value);
+    try {
+      JSON.parse(e.target.value);
+      setError("");
+    } catch (e) {
+      setError("Syntax error, please check parsing, like commas and brackets");
     }
-    // Adding the scene to the module
-    else if (addModule === "scene") {
-      return (
-        <form
-          className="large-form"
-          onSubmit={e => {
-            e.preventDefault();
-          }}
-          encType="multipart/form-data"
-        >
-          <input type="hidden" value="10000000" required />
-          <label id="bkgd_file" htmlFor="bkgd_file">Background Image*</label>
-          <input
-            name="background"
-            type="file"
-            value={scenes.background}
-            onChange={handleScenesChange}
-            accept="image/*"
-            id="bkgd_file"
-            className="script-form"
-          />
-          <input
-            name="charList"
-            type="text"
-            value={scenes.charList}
-            onChange={handleScenesChange}
-            placeholder="Characters (use IDs) in Scene (separate by commas)*"
-            className="large-form script-form"
-          />
-          <div style={styles.buttonsContainer}>
-            <div style={styles.button} className={"addbar-submit-button"} onClick={onSceneSubmit}>Add Scene to Module</div>
-            <div style={styles.button} className={"addbar-submit-button"} onClick={() => setAddModule("frame")}>Module has more Scenes</div>
-          </div>
-          <div style={styles.button} className={"addbar-submit-button"} onClick={() => setAddModule("module")}>All Scenes Added in Module!</div>
-        </form>
-      )
-    }
-    // Finalizing json by adding module #
-    else {
-      return (
-        <div>
-          <form
-            className="large-form"
-            onSubmit={e => {
-              e.preventDefault();
-            }}
-          >
-            <input
-              name="modNum"
-              type="number"
-              value={modNum}
-              onChange={(e) => setModNum(e.target.value)}
-              placeholder="Module Number*"
-              className="large-form script-form"
-            />
-          </form>
-          <a
-            className="button"
-            href={"data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allScenesArray))}
-            download={`module${modNum}.json`}
-          >
-            Download JSON
-          </a>
-          <div
-            style={styles.button}
-            className={"addbar-submit-button"}
-            onClick={(event) => {
-              onModuleSubmit(event);
-              setModNum("");
-              setAddModule("frame");
-            }}
-          >
-            Back to the Beginning
-          </div>
-        </div>
-      )
+  }
+
+  const handleEditJsonSubmit = (e) => {
+    setError("");
+    try {
+      let jsonFile = JSON.parse(editedJson);
+      const link = document.createElement('a');
+      link.download = "character.json";
+      link.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(jsonFile, null, 2));
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      setError("Syntax error, please check parsing, like commas and brackets");
     }
   }
 
@@ -402,11 +298,15 @@ export const ScriptGenerator = () => {
     <div className="script-generator-container">
       <nav>
         <ul>
-          <li onClick={(e) => setTabSwitch("character")}>Character</li>
-          <li onClick={(e) => setTabSwitch("module")}>Module</li>
-          <li onClick={(e) => setTabSwitch("question")}>Question</li>
+          <li onClick={(e) => setTabSwitch("character")} className={tabSwitch === "character" ? "li-selected" : ""}>Character</li>
+          <li onClick={(e) => setTabSwitch("module")} className={tabSwitch === "module" ? "li-selected" : ""}>Module</li>
+          <li onClick={(e) => setTabSwitch("question")} className={tabSwitch === "question" ? "li-selected" : ""}>Question</li>
         </ul>
       </nav>
+      <p>* Note: File inputs do not reset when you press "submit",
+      but consider it as resetted and ignore the previous input.
+      If you reuse a file input, make sure you select a new file
+      even if it's the same one as before.</p>
       {tabSwitch === "character" &&
         <div /* Character JSON wrapper */ >
           <h1>Generate/Upload Character JSON</h1>
@@ -439,6 +339,7 @@ export const ScriptGenerator = () => {
                   value={char.charName}
                   onChange={handleCharChange}
                   placeholder="Character Name*"
+                  style={styles.scriptInput}
                 />
                 <label id="char_file" htmlFor="char_file">Character image:</label>
                 <input
@@ -448,6 +349,7 @@ export const ScriptGenerator = () => {
                   onChange={e => { setChar({ ...char, charFile: e.target.files[0].name }) }}
                   accept="image/*"
                   id="char_file"
+                  style={styles.scriptInput}
                 />
                 <button onClick={onCharSubmit}>
                   Add Character
@@ -458,7 +360,7 @@ export const ScriptGenerator = () => {
               <h3>2. Download resulting JSON</h3>
               <button>
                 <a
-                  href={"data:'text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allCharsArray))}
+                  href={"data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allCharsArray, null, 2))}
                   download="character.json"
                 >
                   Download JSON
@@ -477,16 +379,233 @@ export const ScriptGenerator = () => {
               className="script-generator-form-card"
             >
               <input
-                name="uploadChar"
+                name="uploadJson"
                 type="file"
                 accept=".json"
-                onChange={handleCharJsonSubmit}
+                onChange={handleUploadJsonSubmit}
+                style={styles.scriptInput}
               />
-              <button onClick={() => { setEditedCharJson(uploadChar) }}>
+              <button onClick={() => { setEditedJson(uploadJson); setError("") }}>
                 Upload
-                </button>
+              </button>
             </form>
-            <h3>2. Edit the JSON text. Click download when done and the JSON will print to the console!</h3>
+            <h3>2. Edit the JSON text. Click download when done.
+            You will get an error if the JSON fails to parse,
+              otherwise the file should download!</h3>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+              }}
+              encType="multipart/form-data"
+              className="script-generator-form-card"
+            >
+              <textarea
+                name="editExistingFile"
+                value={editedJson}
+                onChange={handleEditJsonChange}
+                rows="30"
+                style={{ width: '100%' }}
+                placeholder="Uploaded JSON will appear here..."
+              />
+              <p className="errorMessage" style={error ? { ...styles.errorMessage, display: 'show' } : { display: 'hidden' }}>{error ? error : null}</p>
+              <button
+                onClick={handleEditJsonSubmit}
+                class={!error ? "" : "button-not-enabled"}
+              >
+                Download Edited JSON
+              </button>
+            </form>
+          </div>
+        </div>
+      }
+
+      {tabSwitch === "module" &&
+        <div>
+          <h1>Generate/Edit Module JSON</h1>
+          <div className="script-generator-page-container">
+            <h2>Add Module</h2>
+            <section>
+              <h3>1. Fill in module background information. No submit button :D</h3>
+              <form
+                className="large-form"
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+                className="script-generator-form-card"
+              >
+                <input
+                  name="modNum"
+                  type="number"
+                  value={modNum}
+                  onChange={(e) => setModNum(e.target.value)}
+                  placeholder="Module Number*"
+                  style={styles.scriptInput}
+                />
+                <input
+                  name="modTitle"
+                  type="text"
+                  value={modTitle}
+                  onChange={(e) => { setModTitle(e.target.value) }}
+                  placeholder="Title*"
+                  style={styles.scriptInput}
+                />
+              </form>
+            </section>
+            <section>
+              <h3>2. Add scene information. The scene and its script
+              are split into steps 2 &amp; 3. You can choose to either
+              add all the scenes at once, or add a scene and its script
+                in chronological order.</h3>
+              <form
+                className="large-form"
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+                className="script-generator-form-card"
+              >
+                <input type="hidden" value="10000000" required />
+                <label id="scene_part_background" htmlFor="scene_part_background">Scene background:</label>
+                <input
+                  name="background"
+                  type="file"
+                  // For file inputs, make input uncontrolled in order to extract filename w/o errors
+                  onChange={e => { setScenes({ ...scenes, background: e.target.files[0].name }) }}
+                  accept="image/*"
+                  id="scene_part_background"
+                  style={styles.scriptInput}
+                />
+                <input
+                  name="charList"
+                  type="text"
+                  value={scenes.charList}
+                  onChange={e => { setScenes({ ...scenes, charList: e.target.value }) }}
+                  placeholder="Character(s) ID NUMBER according to characters.json involved in scene (separate by commas, no spaces)*"
+                  style={styles.scriptInput}
+                />
+                <button onClick={onSceneSubmit}>Submit Scene</button>
+              </form>
+            </section>
+            <section>
+              <h3>3. Add the script to a scene by splitting it into "parts" using the form below.
+              Make sure to select which scene's script you are contributing to.
+                View all your scenes by clicking "View Scenes".</h3>
+              <button onClick={() => { setShowScenes(!showScenes) }}>{showScenes ? "Hide All Scenes" : "View All Scenes"}</button>
+              <div className="view-json-container"><pre>{showScenes ? JSON.stringify(allScenesArray, null, 2) : null}</pre></div>
+              <form
+                className="large-form"
+                onSubmit={e => {
+                  e.preventDefault();
+                }}
+                encType="multipart/form-data"
+                className="script-generator-form-card"
+              >
+                <input type="hidden" value="10000000" required />
+                <label htmlFor="choose_scene">Scene: </label>
+                <select
+                  name="chooseScene"
+                  id="choose_scene"
+                  defaultValue=""
+                  value={chooseScene}
+                  onChange={e => { setChooseScene(e.target.value) }}
+                  required
+                >
+                  <option value="" disabled hidden>Choose here</option>
+                  {allScenesArray.map((scene, index) => {
+                    return (
+                      <option value={index}>Scene {index + 1} </option>
+                    );
+                  })}
+                </select>
+                <ul>
+                  <li onClick={() => { setScriptPartType("action") }} className={scriptPartType === "action" ? "li-selected" : ""}>Action</li>
+                  <li onClick={() => { setScriptPartType("dialogue") }} className={scriptPartType === "dialogue" ? "li-selected" : ""}>Dialogue</li>
+                </ul>
+                <input
+                  name="charId"
+                  value={script.charId}
+                  type="number"
+                  onChange={e => { setScript({ ...script, charId: e.target.valueAsNumber }) }}
+                  placeholder="Character ID (numerical)*"
+                  style={styles.scriptInput}
+                />
+                {scriptPartType === "action" &&
+                  <div>
+                    <input
+                      name="actionType"
+                      type="text"
+                      value={script.actionType}
+                      onChange={handleScriptChange}
+                      placeholder="Action Type*"
+                      style={styles.scriptInput}
+                    />
+                  </div>
+                }
+                {scriptPartType === "dialogue" &&
+                  <div>
+                    <input
+                      name="dialogue"
+                      type="text"
+                      value={script.dialogue}
+                      onChange={handleScriptChange}
+                      placeholder="Dialogue*"
+                      style={styles.scriptInput}
+                    />
+                    <label id="script_part_dialogue" htmlFor="cript_part_dialogue">Dialogue Audio File:</label>
+                    <input
+                      name="dialogueFile"
+                      type="file"
+                      // For file inputs, make input uncontrolled in order to extract filename w/o errors
+                      onChange={e => { setScript({ ...script, dialogueFile: e.target.files[0].name }) }}
+                      accept="audio/*"
+                      id="script_part_background"
+                      style={styles.scriptInput}
+                    />
+                    <ul>
+                      <li onClick={() => { setPopOutImage(false) }} className={!popOutImage ? "li-selected" : ""}>Doesn't have Pop-out Image</li>
+                      <li onClick={() => { setPopOutImage(true) }} className={popOutImage ? "li-selected" : ""}>Has Pop-out Image</li>
+                    </ul>
+                    {popOutImage &&
+                      <div>
+                        <label id="pop_out_image" htmlFor="pop_out_image">Pop-out Image:</label>
+                        <input
+                          name="dialoguePopOutImage"
+                          type="file"
+                          // For file inputs, make input uncontrolled in order to extract filename w/o errors
+                          onChange={e => { setScript({ ...script, dialoguePopOutImage: e.target.files[0].name }) }}
+                          accept="image/*"
+                          id="pop_out_image"
+                          style={styles.scriptInput}
+                        />
+                      </div>
+                    }
+                    {popOutImage === false &&
+                      <div>
+                      </div>
+                    }
+                  </div>
+                }
+                <p className="errorMessage" style={scriptError ? { ...styles.errorMessage, display: 'show' } : { display: 'hidden' }}>{scriptError ? scriptError : ""}</p>
+                <button
+                  onClick={onScriptPartSubmit}
+                  class={!scriptError ? "" : "button-not-enabled"}
+                >
+                  Add Part to Script
+                </button>
+              </form>
+            </section>
+            <section>
+              <h3>4. Repeat steps #3 &amp; #4 as necessary until you have added all the scenes.</h3>
+            </section>
+            <section>
+              <h3>5. Download resulting JSON</h3>
+              <button onClick={onModuleSubmit}>Download JSON</button>
+            </section>
+          </div>
+          <div className="script-generator-page-container">
+            <h2>Upload &amp; Edit Existing JSON</h2>
+            <h3>1. Upload the existing JSON file. JSON format only. The JSON will appear in the text area below in string type.</h3>
             <form
               onSubmit={e => {
                 e.preventDefault();
@@ -495,25 +614,41 @@ export const ScriptGenerator = () => {
               className="script-generator-form-card"
             >
               <input
+                name="uploadJson"
+                type="file"
+                accept=".json"
+                onChange={handleUploadJsonSubmit}
+                style={styles.scriptInput}
+              />
+              <button onClick={() => { setEditedJson(uploadJson); setError("") }}>
+                Upload
+              </button>
+            </form>
+            <h3>2. Edit the JSON text. Click download when done.
+            You will get an error if the JSON fails to parse,
+              otherwise the file should download!</h3>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+              }}
+              encType="multipart/form-data"
+              className="script-generator-form-card"
+            >
+              <textarea
                 name="editExistingFile"
-                type="textarea"
-                value={editedCharJson}
-                onChange={handleCharJsonChange}
+                value={editedJson}
+                onChange={handleEditJsonChange}
                 rows="30"
+                style={{ width: '100%' }}
                 placeholder="Uploaded JSON will appear here..."
               />
+              <p className="errorMessage" style={error ? { ...styles.errorMessage, display: 'show' } : { display: 'hidden' }}>{error ? error : null}</p>
               <button
-                onClick={e => {
-                  e.preventDefault();
-                  try {
-                    let newJson = JSON.parse(editedCharJson);
-                  } catch (e) {
-                    console.log(e);
-                  }
-                }}
+                onClick={handleEditJsonSubmit}
+                class={!error ? "" : "button-not-enabled"}
               >
                 Download Edited JSON
-                </button>
+              </button>
             </form>
           </div>
         </div>
@@ -523,9 +658,14 @@ export const ScriptGenerator = () => {
         <div>
           <h1>Generate/Edit Question JSON</h1>
           <div className="script-generator-page-container">
+            <h2>Add Questions</h2>
             <section>
-              <h2>Add Questions</h2>
-              <h3>1. Add questions using the form below.</h3>
+              <h3>1. View the Q's you have added by clicking "View Questions".</h3>
+              <button onClick={() => { setShowQuestions(!showQuestions) }}>{showQuestions ? "Hide Questions" : "View Questions"}</button>
+              <div className="view-json-container"><pre>{showQuestions ? JSON.stringify(allQuestionsArray, null, 2) : null}</pre></div>
+            </section>
+            <section>
+              <h3>2. Add questions using the form below.</h3>
               <form
                 className="large-form"
                 onSubmit={e => {
@@ -541,6 +681,7 @@ export const ScriptGenerator = () => {
                   value={modNum}
                   onChange={(e) => setModNum(e.target.value)}
                   placeholder="Module Number*"
+                  style={styles.scriptInput}
                 />
                 <input
                   name="questionText"
@@ -548,6 +689,7 @@ export const ScriptGenerator = () => {
                   value={question.questionText}
                   onChange={handleQuestionChange}
                   placeholder="Question Text*"
+                  style={styles.scriptInput}
                 />
                 <input
                   name="explanationText"
@@ -555,6 +697,7 @@ export const ScriptGenerator = () => {
                   value={question.explanationText}
                   onChange={handleQuestionChange}
                   placeholder="Explanation Text*"
+                  style={styles.scriptInput}
                 />
                 <label id="question_audio" htmlFor="question_audio">Question Audio:</label>
                 <input
@@ -563,6 +706,7 @@ export const ScriptGenerator = () => {
                   onChange={e => { setQuestion({ ...question, questionAudio: e.target.files[0].name }) }}
                   accept="audio/*"
                   id="question_audio"
+                  style={styles.scriptInput}
                 />
                 <label id="answer_audio" htmlFor="answer_audio">Answer Audio:</label>
                 <input
@@ -571,10 +715,11 @@ export const ScriptGenerator = () => {
                   onChange={e => { setQuestion({ ...question, explanationAudio: e.target.files[0].name }) }}
                   accept="audio/*"
                   id="answer_audio"
+                  style={styles.scriptInput}
                 />
                 <ul>
-                  <li onClick={() => { setQuestionType("multiple_choice") }}>Multiple Choice</li>
-                  <li onClick={() => { setQuestionType("drag_and_drop") }}>Drag &amp; Drop</li>
+                  <li onClick={() => { setQuestionType("multiple_choice") }} className={questionType === "multiple_choice" ? "li-selected" : ""}>Multiple Choice</li>
+                  <li onClick={() => { setQuestionType("drag_and_drop") }} className={questionType === "drag_and_drop" ? "li-selected" : ""}>Drag &amp; Drop</li>
                 </ul>
                 {questionType === "multiple_choice" &&
                   <div>
@@ -592,6 +737,7 @@ export const ScriptGenerator = () => {
                       }}
                       accept="images/*"
                       id="image_options"
+                      style={styles.scriptInput}
                     />
                     <input
                       name="answerChoices"
@@ -599,6 +745,7 @@ export const ScriptGenerator = () => {
                       value={question.answerChoices}
                       onChange={handleQuestionChange}
                       placeholder="Answer choices (separate by commas, no spaces)*"
+                      style={styles.scriptInput}
                     />
                     <input
                       name="correctAnswer"
@@ -606,6 +753,7 @@ export const ScriptGenerator = () => {
                       value={question.correctAnswer}
                       onChange={handleQuestionChange}
                       placeholder="Correct answer(s) (separate by commas, no spaces)*"
+                      style={styles.scriptInput}
                     />
                   </div>
                 }
@@ -625,6 +773,7 @@ export const ScriptGenerator = () => {
                       }}
                       accept="images/*"
                       id="ordered_images"
+                      style={styles.scriptInput}
                     />
                   </div>
                 }
@@ -632,19 +781,15 @@ export const ScriptGenerator = () => {
               </form>
             </section>
             <section>
-              <h3>2. Download resulting JSON.</h3>
+              <h3>3. Download resulting JSON.</h3>
               <button>
                 <a
-                  href={"data:'text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allQuestionsArray))}
+                  href={"data:'text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(allQuestionsArray, null, 2))}
                   download={`questions${modNum}.json`}
                 >
                   Download JSON
                 </a>
               </button>
-            </section>
-            <section>
-              <h3>3. View the Q's you have added by clicking "View Questions". An array of all questions will print out to the console.</h3>
-              <button onClick={() => { console.log(allQuestionsArray) }}>View Questions</button>
             </section>
           </div>
           <div className="script-generator-page-container">
@@ -658,16 +803,19 @@ export const ScriptGenerator = () => {
               className="script-generator-form-card"
             >
               <input
-                name="uploadChar"
+                name="uploadJson"
                 type="file"
                 accept=".json"
-                onChange={handleCharJsonSubmit}
+                onChange={handleUploadJsonSubmit}
+                style={styles.scriptInput}
               />
-              <button onClick={() => { setEditedCharJson(uploadChar) }}>
+              <button onClick={() => { setEditedJson(uploadJson); setError("") }}>
                 Upload
-                </button>
+              </button>
             </form>
-            <h3>2. Edit the JSON text. Click download when done and the JSON will print to the console!</h3>
+            <h3>2. Edit the JSON text. Click download when done.
+            You will get an error if the JSON fails to parse,
+              otherwise the file should download!</h3>
             <form
               onSubmit={e => {
                 e.preventDefault();
@@ -675,19 +823,21 @@ export const ScriptGenerator = () => {
               encType="multipart/form-data"
               className="script-generator-form-card"
             >
-              <input
+              <textarea
                 name="editExistingFile"
-                type="textarea"
-                value={editedCharJson}
-                onChange={handleCharJsonChange}
+                value={editedJson}
+                onChange={handleEditJsonChange}
                 rows="30"
+                style={{ width: '100%' }}
                 placeholder="Uploaded JSON will appear here..."
               />
+              <p className="errorMessage" style={error ? { ...styles.errorMessage, display: 'show' } : { display: 'hidden' }}>{error ? error : null}</p>
               <button
-                onClick={() => { console.log(JSON.parse(editedCharJson.substring(0, editedCharJson.length))) }}
+                onClick={handleEditJsonSubmit}
+                class={!error ? "" : "button-not-enabled"}
               >
                 Download Edited JSON
-                </button>
+              </button>
             </form>
           </div>
         </div>
