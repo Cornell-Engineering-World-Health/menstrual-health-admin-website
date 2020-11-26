@@ -313,7 +313,7 @@ export const ScriptGenerator = () => {
           <div className="script-generator-page-container">
             <section>
               <h2>Add Characters</h2>
-              <h3>1. Add characters using the form below. They will appear in the table!</h3>
+              <h3>1. Add characters using the form below. They will appear in the table below!</h3>
               <table className="script-generator-table">
                 <thead>
                   <tr>
@@ -370,7 +370,7 @@ export const ScriptGenerator = () => {
           </div>
           <div className="script-generator-page-container">
             <h2>Upload &amp; Edit Existing JSON</h2>
-            <h3>1. Upload the existing JSON file. JSON format only. The JSON will appear in the text area below in string type.</h3>
+            <h3>1. Upload the existing JSON file. JSON format only. The JSON will appear in the text area in Step #2 in string type.</h3>
             <form
               onSubmit={e => {
                 e.preventDefault();
