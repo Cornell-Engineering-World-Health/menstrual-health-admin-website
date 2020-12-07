@@ -1,7 +1,7 @@
 var endpoint_prefix = "https://healthfriendgameserver.herokuapp.com/api/";
 
 export function getKey() {
-  return process.env.API_KEY;
+  return "" + process.env.API_KEY;
 }
 
 export async function getUsersByAdmin(admin_id) {
@@ -9,7 +9,7 @@ export async function getUsersByAdmin(admin_id) {
   let endpoint = endpoint_prefix + "users/admin/" + admin_id;
   const response = await fetch(endpoint, {
     headers: {
-      Authorization: getKey(),
+      "X-API-KEY": getKey(),
     },
   });
   var json = await response.json();
@@ -23,7 +23,7 @@ export async function postUser(data) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: getKey(),
+        "X-API-KEY": getKey(),
     },
     body: JSON.stringify(data),
   });
@@ -37,7 +37,7 @@ export async function deleteUser(user_id) {
   const response = await fetch(endpoint, {
     method: "DELETE",
     headers: {
-      Authorization: getKey(),
+      "X-API-KEY": getKey(),
     },
   });
   var json = await response.json();
