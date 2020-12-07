@@ -5,8 +5,6 @@ var uiConfig = {
   queryParameterForSignInSuccessUrl: "signInSuccessUrl",
   signInOptions: [
     // Leave the lines as is for the providers you want to offer your users.
-    firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
     {
       provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
       // Whether the display name should be displayed in the Sign Up page.
@@ -24,7 +22,7 @@ var uiConfig = {
   // Terms of service url/callback.
   tosUrl: "<your-tos-url>",
   // Privacy policy url/callback.
-  privacyPolicyUrl: function() {
+  privacyPolicyUrl: function () {
     window.location.assign("<your-privacy-policy-url>");
   }
 };
