@@ -1,7 +1,7 @@
 var endpoint_prefix = "https://healthfriendgameserver.herokuapp.com/api/";
 
 export function getKey() {
-  return "" + process.env.API_KEY;
+  return process.env.REACT_APP_API_KEY;
 }
 
 export async function getUsersByAdmin(admin_id) {
@@ -23,7 +23,7 @@ export async function postUser(data) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-        "X-API-KEY": getKey(),
+      "X-API-KEY": getKey(),
     },
     body: JSON.stringify(data),
   });
